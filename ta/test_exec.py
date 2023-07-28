@@ -1,34 +1,37 @@
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING
 
+from ta import tests
 from ta.utils import data_types
 from ta.instruments import instrument_manager
 from ta.utils import typing_ext
-from ta.utils.registrar import TEST_CLASSES
-from ta.tests.virt_test import VirtualTest
+from ta.utils import registrar
 from ta.utils.exec_helpers.status_writer import write_status
 from ta.utils.logger import init_logger
-
-if TYPE_CHECKING:
-    from ta.utils.data_types.dut_info import DUTInfo
-    from ta.utils.data_types.recipe import Recipe
 
 
 class TestExec:
 
-    def __init__(self, dut_info: 'DUTInfo', recipe: 'Recipe', reanalyze: bool = False,
+    def __init__(self,
+                 dut_info: 'data_types.metadata.DUTInfo',
+                 recipe: 'data_types.recipe.Recipe',
+                 station_config: 'data_types.station_config.StationConfig',
+                 reanalyze: bool = False,
                  path: typing_ext.PathLike | None = None):
+
         self.logger = logging.getLogger(self.__class__.__name__)
 
         self.dut_info = dut_info
         self.recipe = recipe
+        self.station_config = station_config
 
         self.reanalyze = reanalyze
 
         self.instr_mgr = None
         # self.test_classes = {VirtualTest.__name__: VirtualTest}
-        self.test_classes = TEST_CLASSES
+
+        registrar.register_classes(tests)
+        self.test_classes = registrar.TEST_CLASSES
 
         self.timestamp = {'start': data_types.metadata.TimeStamp(),
                           'end': None}
@@ -37,16 +40,17 @@ class TestExec:
         if self.reanalyze:
             self.run_path = Path(path)
         else:
-            self.run_path = Path('data') / run_name
+            self.run_path = self.station_config.data_path / run_name
 
         self.status_writer = write_status
         # self.results_writer = results_writer
 
     def __enter__(self):
-        self.logger.info("Entering")
-
         self.run_path.mkdir(exist_ok=True)
+
+        # Any calls made to the logger will not be recorded to file if they are made before calling init_logger()
         init_logger(path=self.run_path / f'runlog_{self.timestamp["start"]}.txt')
+
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -54,7 +58,8 @@ class TestExec:
 
         self.timestamp['end'] = data_types.metadata.TimeStamp()
 
-        write_status(test_exec=self, path=self.run_path / 'status.json')
+        status_fname = f'status_renalysis_{self.timestamp["start"]}.json' if self.reanalyze else 'status.json'
+        write_status(test_exec=self, path=self.run_path / status_fname)
 
     def run_recipe(self):
         self.logger.info("Starting instrument manager")

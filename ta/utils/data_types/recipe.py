@@ -1,9 +1,9 @@
 import logging
 from typing import Iterable
 
-from ta.utils.data_types import filereader
 from ta.utils import typing_ext
 from ta.utils import io
+from ta.utils.data_types import filereader
 
 
 class Recipe(filereader.FileWRer):
@@ -16,11 +16,6 @@ class Recipe(filereader.FileWRer):
     @classmethod
     def from_dict(cls, data: dict):
         return cls(recipe=data)
-
-    @classmethod
-    def read_json(cls, path: typing_ext.PathLike):
-        data = io.read_json(path=path)
-        return cls.from_dict(data=data)
 
     def __eq__(self, other):
         if isinstance(other, Recipe):

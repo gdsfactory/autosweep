@@ -1,11 +1,12 @@
 import orjson
 
 from ta.utils import typing_ext
-from ta.utils.data_types import metadata
-from ta.sweep import sweep_parser
 
 
 def json_serializer(obj):
+    from ta.utils.data_types import metadata
+    from ta.sweep import sweep_parser
+
     if isinstance(obj, metadata.DUTInfo):
         return obj.to_dict()
     if isinstance(obj, metadata.TimeStamp):

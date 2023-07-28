@@ -1,8 +1,10 @@
 import logging
 
 from ta.instruments.abs_instr import AbsInstrument
+from ta.utils import registrar
 
 
+@registrar.register_instr
 class VirtualInstr(AbsInstrument):
 
     def __init__(self, com: object | None = None):

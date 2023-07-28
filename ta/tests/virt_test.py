@@ -4,16 +4,15 @@ from time import sleep
 import numpy as np
 
 
-from ta.utils.registrar import register_test
-from ta.sweep.sweep_parser import Sweep
-from ta.sweep.vis_utils import FigHandler
+from ta.utils import registrar
+from ta import sweep
 if TYPE_CHECKING:
     from pathlib import Path
     from ta.instruments.instrument_manager import InstrumentManager
-    from ta.utils.data_types.dut_info import DUTInfo
+    from ta.utils.data_types.metadata import DUTInfo
 
 
-@register_test
+@registrar.register_test
 class VirtualTest(AbsTest):
 
     def __init__(self, dut_info: 'DUTInfo', save_path: 'Path'):
@@ -28,7 +27,7 @@ class VirtualTest(AbsTest):
         traces = {'v': v, 'i0': v/10, 'i1': v/20}
         attrs = {'v': ("Voltage", "V"), 'i0': ("Current", "A"), 'i1': ("Current", "A")}
 
-        s = Sweep(traces=traces, attrs=attrs)
+        s = sweep.Sweep(traces=traces, attrs=attrs)
         sleep(2)
 
         self.save_data(sweeps={'iv': s}, metadata=None)
@@ -39,7 +38,7 @@ class VirtualTest(AbsTest):
 
         iv = self.sweeps['iv']
 
-        fig_hdlr = FigHandler()
+        fig_hdlr = sweep.FigHandler()
         ax = fig_hdlr.ax
         for col, x, y in iv.itercols():
             ax.plot(x, y, label=col)

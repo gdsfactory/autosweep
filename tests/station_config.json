@@ -1,0 +1,12 @@
+{
+  "station_id": "ABC",
+  "paths": {
+    "base": ".",
+    "data": "data"
+  },
+  "instruments": {
+    "virt_instr": {
+      "class": "VirtualInstr"
+    }
+  }
+}

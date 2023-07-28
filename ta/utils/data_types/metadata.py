@@ -1,32 +1,46 @@
 import logging
+import functools
 from datetime import datetime
 
 from ta.utils.params import datetime_frmt
 
 
-class PN:
+class MetaNum:
+
+    def __init__(self, num: str | int):
+        self.num = num.upper() if isinstance(num, str) else num
+
+    def __str__(self) -> str:
+        return f"<{self.__module__}.{self.__class__.__name__}: {self.num}>"
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        return cls(**data)
+
+    def to_dict(self) -> dict:
+        return self.__dict__
+
+
+class PN(MetaNum):
 
     def __init__(self, num: str | int, rev: str | int):
-        self.num = num.upper() if isinstance(num, str) else num
-        self.rev = rev.upper() if isinstance(rev, str) else rev
+        super().__init__(num=num)
 
+        self.rev = rev.upper() if isinstance(rev, str) else rev
         self._num_full = f"{self.num}-R{self.rev}"
 
     def __str__(self) -> str:
-        return f"<{self.__class__.__name__}: {self.part_num}>"
+        return f"<{self.__module__}.{self.__class__.__name__}: {self.part_num}>"
 
     @property
     def part_num(self) -> str:
         return self._num_full
 
+    def to_dict(self) -> dict:
+        return {'num': self.num, 'rev': self.rev}
 
-class SN:
 
-    def __init__(self, num: str | int):
-        self.num = num
-
-    def __str__(self) -> str:
-        return f"<{self.__class__.__name__}: {self.ser_num}>"
+class SN(MetaNum):
 
     @property
     def ser_num(self) -> str:
@@ -61,7 +75,7 @@ class DUTInfo:
         return DUTInfo(part_num=part_num, ser_num=ser_num, **data['attrs'])
 
     def __str__(self) -> str:
-        return f"<{self.__class__.__name__}: PN: {self.part_num}, SN: {self.ser_num}>"
+        return f"<{self.__module__}.{self.__class__.__name__}: PN: {self.part_num}, SN: {self.ser_num}>"
 
     @property
     def part_num(self) -> str:
@@ -72,13 +86,14 @@ class DUTInfo:
         return self.ser_num_obj.ser_num
 
     def to_dict(self) -> dict:
-        out = {'part_num': self.part_num_obj.__dict__,
-               'ser_num': self.ser_num_obj.__dict__,
+        out = {'part_num': self.part_num_obj.to_dict(),
+               'ser_num': self.ser_num_obj.to_dict(),
                'attrs': self.attrs}
 
         return out
 
 
+@functools.total_ordering
 class TimeStamp:
 
     def __init__(self, timestamp: str | datetime | None = None):
@@ -97,8 +112,17 @@ class TimeStamp:
     def __str__(self) -> str:
         return self.timestamp_str
 
+    def __repr__(self):
+        return f"<{self.__module__}.{self.__class__.__name__}: {self.timestamp_str}>"
+
     def __eq__(self, other):
         if isinstance(other, TimeStamp):
             return self.timestamp == other.timestamp
+        else:
+            return False
+
+    def __gt__(self, other):
+        if isinstance(other, TimeStamp):
+            return self.timestamp > other.timestamp
         else:
             return False
