@@ -6,4 +6,4 @@ API
     :template: custom_mod.rst
     :recursive:
 
-    ta
+    autosweep

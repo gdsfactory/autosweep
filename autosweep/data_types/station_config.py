@@ -1,11 +1,10 @@
 from pathlib import Path
 import logging
-import types
 
-from ta.utils.data_types import filereader
-from ta.utils import typing_ext
-from ta.utils import io
-from ta.utils import generics
+from autosweep.data_types import filereader
+from autosweep.utils import typing_ext
+from autosweep.utils import io
+from autosweep.utils import generics
 
 
 class StationConfig(filereader.FileWRer):

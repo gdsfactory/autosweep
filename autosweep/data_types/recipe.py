@@ -1,9 +1,9 @@
 import logging
 from typing import Iterable
 
-from ta.utils import typing_ext
-from ta.utils import io
-from ta.utils.data_types import filereader
+from autosweep.utils import typing_ext
+from autosweep.utils import io
+from autosweep.data_types import filereader
 
 
 class Recipe(filereader.FileWRer):

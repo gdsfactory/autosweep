@@ -2,7 +2,7 @@ import logging
 import functools
 from datetime import datetime
 
-from ta.utils.params import datetime_frmt
+from autosweep.utils.params import datetime_frmt
 
 
 class MetaNum:

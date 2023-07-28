@@ -1,7 +1,7 @@
 import logging
 
-from ta.utils.params import logger_format, logger_level
-from ta.utils.typing_ext import PathLike
+from autosweep.utils.params import logger_format, logger_level
+from autosweep.utils.typing_ext import PathLike
 
 
 def init_logger(path: PathLike | None = None) -> None:

@@ -1,4 +1,4 @@
-from ta.tests.virt_test import VirtualTest
+from autosweep.tests.virt_test import VirtualTest
 
 
 class NewTest(VirtualTest):

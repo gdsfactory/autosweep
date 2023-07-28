@@ -1,8 +1,8 @@
 # TODO: Might want to rename this. there is an IO in utils as well
-from ta.utils import typing_ext
-from ta.utils import io
-from ta.utils.data_types import metadata as md
-from ta.sweep import sweep_parser
+from autosweep.utils import typing_ext
+from autosweep.utils import io
+from autosweep.data_types import metadata as md
+from autosweep.sweep import sweep_parser
 
 
 def read_json(path: typing_ext.PathLike):

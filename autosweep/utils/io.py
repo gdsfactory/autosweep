@@ -2,7 +2,7 @@ import orjson
 import csv
 import typing
 
-from ta.utils import typing_ext
+from autosweep.utils import typing_ext
 
 
 def json_serializer(obj: typing.Any) -> str | dict:
@@ -16,7 +16,7 @@ def json_serializer(obj: typing.Any) -> str | dict:
     """
 
     # This is done here due to circular import issues
-    from ta.utils.data_types import metadata
+    from autosweep.data_types import metadata
 
     if isinstance(obj, metadata.DUTInfo):
         return obj.to_dict()

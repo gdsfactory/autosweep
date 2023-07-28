@@ -1,12 +1,12 @@
-.. Test Automation documentation master file, created by
+.. AutoSweep documentation master file, created by
    sphinx-quickstart on Mon Jul 10 16:19:21 2023.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Test Automation's documentation!
+Welcome to AutoSweep's documentation!
 ===========================================
 
-The Test Automation project is designed to run automated testing of silicon photonic devices. It's
+The AutoSweep project is designed to run automated testing of silicon photonic devices. It's
 designed to be highly modular, giving a framework with which to organize test sequences and manage instruments, while
 keeping track of device metadata, saving raw data, generating reports and handling errors.
 

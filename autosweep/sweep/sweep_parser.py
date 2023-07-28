@@ -2,8 +2,8 @@ import logging
 import numpy as np
 from typing import Iterable, Any
 
-from ta.utils.data_types import filereader
-from ta.utils import ta_math
+from autosweep.data_types import filereader
+from autosweep.utils import ta_math
 
 
 class Sweep(filereader.GeneralIOClass):
@@ -65,7 +65,7 @@ class Sweep(filereader.GeneralIOClass):
         :param data: The data from a file
         :type data: dict
         :return: A sweep instance
-        :rtype: ta.sweep.sweep_parser.Sweep
+        :rtype: autosweep.sweep.sweep_parser.Sweep
         """
         return Sweep(**data)
 

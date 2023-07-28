@@ -1,9 +1,9 @@
 import logging
 import inspect
 
-from ta.utils import data_types
-from ta.utils import registrar
-from ta.instruments import abs_instr
+from autosweep import data_types
+from autosweep.utils import registrar
+from autosweep.instruments import abs_instr
 
 
 class InstrumentManager:
@@ -39,7 +39,7 @@ class InstrumentManager:
         :param instr_name: The instance name to initialize
         :type instr_name: str
         :return: The instrument instance
-        :rtype: ta.instruments.abs_instr.AbsInstrument
+        :rtype: autosweep.instruments.abs_instr.AbsInstrument
         """
         if instr_name not in self.station_config.instruments:
             raise ValueError(f"{instr_name} is not an instrument in the station config")

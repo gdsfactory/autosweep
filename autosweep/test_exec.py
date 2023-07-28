@@ -1,13 +1,12 @@
 import logging
 from pathlib import Path
 
-from ta.utils import data_types
-from ta.instruments import instrument_manager
-from ta.utils import typing_ext
-from ta.utils import registrar
-from ta.utils.exec_helpers.status_writer import write_status
-from ta.utils.exec_helpers import reporter
-from ta.utils.logger import init_logger
+from autosweep.exec_helpers import status_writer, reporter
+from autosweep.data_types import recipe, metadata, station_config
+from autosweep.instruments import instrument_manager
+from autosweep.utils import typing_ext
+from autosweep.utils import registrar
+from autosweep.utils.logger import init_logger
 
 
 class TestExec:
@@ -16,11 +15,11 @@ class TestExec:
     configuration to run setup instruments, take and analyze data and produce reports.
 
     :param dut_info: The information related to the device-under-test
-    :type dut_info: ta.utils.data_types.metadata.DUTInfo
+    :type dut_info: autosweep.data_types.metadata.DUTInfo
     :param recipe: A collection of tests with parameters to execute
-    :type recipe: ta.utils.data_types.recipe.Recipe
+    :type recipe: autosweep.data_types.recipe.Recipe
     :param station_config: A collection of instrument configurations specific to a certain instrument
-    :type station_config: ta.utils.data_types.station_config.StationConfig
+    :type station_config: autosweep.data_types.station_config.StationConfig
     :param reanalyze: When 'True', it is possible to re-analyze previously acquired test data
     :type reanalyze: bool, default False
     :param path: When 'reanalyze=True', this argument points to the data folder where the run is
@@ -28,9 +27,9 @@ class TestExec:
     """
 
     def __init__(self,
-                 dut_info: 'data_types.metadata.DUTInfo',
-                 recipe: 'data_types.recipe.Recipe',
-                 station_config: 'data_types.station_config.StationConfig',
+                 dut_info: 'metadata.DUTInfo',
+                 recipe: 'recipe.Recipe',
+                 station_config: 'station_config.StationConfig',
                  reanalyze: bool = False,
                  path: typing_ext.PathLike | None = None):
 
@@ -47,7 +46,7 @@ class TestExec:
 
         self.test_classes = registrar.TEST_CLASSES
 
-        self.timestamp = {'start': data_types.metadata.TimeStamp(),
+        self.timestamp = {'start': metadata.TimeStamp(),
                           'end': None}
 
         run_name = f'{self.dut_info.part_num}_{self.dut_info.ser_num}_{self.timestamp["start"]}'
@@ -56,10 +55,18 @@ class TestExec:
         else:
             self.run_path = self.station_config.data_path / run_name
 
-        self.status_writer = write_status
+        # Holds the functions related to writing the satus files, the test results, and code to generate reports, these
+        # functions/classes can be replaced when test_exec is inherited from to change the behavior.
+
+        self.status_writer = status_writer.write_status
         self.test_results = reporter.ResultsHold()
-        self.test_instances = {}
         self.reports_generator = reporter.gen_reports
+
+        # holds the test instances after each recipe step is done
+        self.test_instances = {}
+
+        # the folder to look for the HTML template
+        self.html_path = Path(__file__).parent / 'exec_helpers' / 'html'
 
     def __enter__(self):
         self.run_path.mkdir(exist_ok=True)
@@ -73,7 +80,7 @@ class TestExec:
         if not self.reanalyze:
             self.instr_mgr.close_instruments()
 
-        self.timestamp['end'] = data_types.metadata.TimeStamp()
+        self.timestamp['end'] = metadata.TimeStamp()
 
         status_fname = f'status_renalysis_{self.timestamp["start"]}.json' if self.reanalyze else 'status.json'
         self.status_writer(test_exec=self, path=self.run_path / status_fname)

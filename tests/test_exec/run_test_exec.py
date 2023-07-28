@@ -1,12 +1,11 @@
 from pathlib import Path
 import logging
 
-from ta import *
-from ta.utils import registrar
-from ta.utils.generics import find_last_run
+from autosweep import *
+from autosweep.utils import registrar
+from autosweep.utils.generics import find_last_run
 
 import new_test
-
 
 init_logger()
 registrar.register_classes(new_test)

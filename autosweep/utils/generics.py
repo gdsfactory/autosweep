@@ -1,9 +1,9 @@
 import types
 from pathlib import Path
 
-from ta.utils import io
-from ta.utils.data_types import metadata
-from ta.utils import typing_ext
+from autosweep.utils import io
+from autosweep.utils import typing_ext
+from autosweep.data_types import metadata
 
 
 def find_last_run(path: typing_ext.PathLike) -> Path:

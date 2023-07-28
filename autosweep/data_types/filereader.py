@@ -1,8 +1,8 @@
 from pathlib import Path
 from abc import ABC, abstractmethod
 
-from ta.utils import typing_ext
-from ta.utils import io
+from autosweep.utils import typing_ext
+from autosweep.utils import io
 
 
 class GeneralIOClass(ABC):

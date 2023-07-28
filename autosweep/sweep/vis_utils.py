@@ -4,7 +4,7 @@ import numpy as np
 import base64
 import io
 
-from ta.utils.typing_ext import PathLike
+from autosweep.utils.typing_ext import PathLike
 
 
 class FigHandler:

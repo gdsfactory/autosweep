@@ -1,5 +1,5 @@
 import numpy as np
-from ta.utils import typing_ext
+from autosweep.utils import typing_ext
 
 
 def find_nearest_idx(array: typing_ext.ListLike, val: float) -> int:

@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING
 import jinja2
 
-from ta.utils import io
-from ta import sweep
+from autosweep.utils import io
+from autosweep import sweep
 if TYPE_CHECKING:
-    from ta.test_exec import TestExec
+    from autosweep.test_exec import TestExec
 
 
 class ResultsHold:
@@ -79,7 +79,7 @@ class ResultsHold:
         :param report_heading: The heading in the report for which to associate the figure or info
         :type report_heading: str
         :param fig_hdlr: The figure to plot in the report, only one figure per report heading is supported
-        :type fig_hdlr: ta.sweep.vis_utils.FigHandler, optional
+        :type fig_hdlr: autosweep.sweep.vis_utils.FigHandler, optional
         :param info: A collection of supplimentary information that will be printed under the heading
         :type info: dict, optional
         :return: None
@@ -87,7 +87,7 @@ class ResultsHold:
         if not isinstance(report_heading, str):
             raise TypeError("'report_name' argument must be of type 'str'")
         if fig_hdlr is not None and not isinstance(fig_hdlr, sweep.FigHandler):
-            raise TypeError("The optional argument 'fig_hdlr' must be of type 'ta.sweep.FigHandler'")
+            raise TypeError("The optional argument 'fig_hdlr' must be of type 'autosweep.sweep.FigHandler'")
         if info is not None and not isinstance(info, dict):
             raise TypeError("The optional argument 'info' must be of type 'dict'")
 
@@ -112,7 +112,7 @@ def gen_reports(test_exec: 'TestExec') -> None:
     This function takes information from the test_exec to produce the report and csv data.
 
     :param test_exec: The test exec
-    :type test_exec: ta.test_exec.TestExec
+    :type test_exec: autosweep.test_exec.TestExec
     :return: None
     """
 
@@ -145,7 +145,8 @@ def gen_reports(test_exec: 'TestExec') -> None:
 
         entries.append(entry)
 
-    environment = jinja2.Environment(loader=jinja2.FileSystemLoader("/Users/vesselinvelev/github/test-automation/ta/html"))
+    environment = jinja2.Environment(loader=jinja2.FileSystemLoader(str(test_exec.html_path)))
+
     template = environment.get_template("template.html")
 
     html_str = template.render(entries=entries)

@@ -1,9 +1,8 @@
 import logging
 
-from ta.utils.logger import init_logger
-from ta.utils.data_types.recipe import Recipe
-from ta.utils.data_types.dut_info import DUTInfo
-from ta.utils.data_types.metadata import PN, SN, TimeStamp
+from autosweep.utils.logger import init_logger
+from autosweep.data_types.recipe import Recipe
+from autosweep.data_types.metadata import PN, SN, TimeStamp, DUTInfo
 
 
 init_logger()

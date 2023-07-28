@@ -1,9 +1,8 @@
-import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ta.sweep.sweep_parser import Sweep
-from ta.utils.logger import init_logger
+from autosweep.sweep.sweep_parser import Sweep
+from autosweep.utils.logger import init_logger
 
 v = np.linspace(-1, 1, 11)
 i0 = v/10

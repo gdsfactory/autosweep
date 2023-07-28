@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING
 
-from ta.utils.typing_ext import PathLike
-from ta.utils import io
+from autosweep.utils.typing_ext import PathLike
+from autosweep.utils import io
 
 if TYPE_CHECKING:
-    from ta.test_exec import TestExec
+    from autosweep.test_exec import TestExec
 
 
 def write_status(test_exec: 'TestExec', path: PathLike) -> None:
@@ -12,7 +12,7 @@ def write_status(test_exec: 'TestExec', path: PathLike) -> None:
     Used to write the status file
 
     :param test_exec: The test exec
-    :type test_exec: ta.test_exec.TestExec
+    :type test_exec: autosweep.test_exec.TestExec
     :param path: The location to write the status file to
     :type path: str or pathlib.Path
     :return: None

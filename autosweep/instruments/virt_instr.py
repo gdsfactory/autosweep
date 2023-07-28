@@ -1,4 +1,4 @@
-from ta.instruments import abs_instr
+from autosweep.instruments import abs_instr
 
 
 class VirtualInstr(abs_instr.AbsInstrument):
