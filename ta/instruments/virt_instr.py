@@ -1,11 +1,10 @@
-import logging
-
-from ta.instruments.abs_instr import AbsInstrument
-from ta.utils import registrar
+from ta.instruments import abs_instr
 
 
-@registrar.register_instr
-class VirtualInstr(AbsInstrument):
+class VirtualInstr(abs_instr.AbsInstrument):
+    """
+    A virtual instrument which can be used to develop and test code without the need for a physical instrument
+    """
 
     def __init__(self, com: object | None = None):
         super().__init__(com=com)
