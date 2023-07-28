@@ -13,7 +13,7 @@ class AbsInstrument:
     def __init__(self, com):
         """
 
-        :param com: An instance of an object which can send commands and recieve data from the instrument
+        :param com: An instance of an object which can send commands and receive data from the instrument
         """
         self.logger = logging.getLogger(self.__class__.__name__)
 
@@ -32,6 +32,7 @@ class AbsInstrument:
     def get_idn(self) -> str:
         """
         Queries the instrument using "*IDN?" for it's identifying string
+
         :return: The "*IDN?" string of the instrument or equivalent
         """
         self._idn = self.com.query('*IDN?')
