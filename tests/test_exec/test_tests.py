@@ -11,5 +11,5 @@ v = VirtualInstr(com=None)
 logging.info(f"Instr IDN: {v.idn}")
 
 a = VirtualTest()
-a.run_test(instr_mgr=None)
+a.run_acquision(instr_mgr=None)
 a.run_analysis()

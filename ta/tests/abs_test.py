@@ -12,7 +12,7 @@ class AbsTest(ABC):
         self.logger = logging.getLogger(self.__class__.__name__)
 
     @abstractmethod
-    def run_test(self, instr_mgr: 'InstrumentManager'):
+    def run_acquire(self, instr_mgr: 'InstrumentManager'):
         pass
 
     @abstractmethod
