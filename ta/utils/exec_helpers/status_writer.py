@@ -1,4 +1,3 @@
-import logging
 from typing import TYPE_CHECKING
 
 from ta.utils.typing_ext import PathLike

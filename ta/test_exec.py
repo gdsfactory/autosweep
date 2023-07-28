@@ -7,6 +7,7 @@ from ta.instruments import instrument_manager
 from ta.utils import typing_ext
 from ta.utils import registrar
 from ta.utils.exec_helpers.status_writer import write_status
+from ta.utils.exec_helpers.reporter import gen_reports
 from ta.utils.logger import init_logger
 
 
@@ -42,7 +43,9 @@ class TestExec:
             self.run_path = self.station_config.data_path / run_name
 
         self.status_writer = write_status
-        # self.results_writer = results_writer
+        self.test_results = {}
+        self.test_instances = {}
+        self.reports_generator = gen_reports
 
     def __enter__(self):
         self.run_path.mkdir(exist_ok=True)
@@ -59,7 +62,11 @@ class TestExec:
         self.timestamp['end'] = data_types.metadata.TimeStamp()
 
         status_fname = f'status_renalysis_{self.timestamp["start"]}.json' if self.reanalyze else 'status.json'
-        write_status(test_exec=self, path=self.run_path / status_fname)
+        self.status_writer(test_exec=self, path=self.run_path / status_fname)
+        self.reports_generator(test_exec=self)
+
+        print(self.test_instances)
+        print(self.test_results)
 
     def run_recipe(self):
         if not self.reanalyze:
@@ -79,10 +86,13 @@ class TestExec:
         test_path = self.run_path / name
         test_path.mkdir(exist_ok=True)
 
-        test = self.test_classes[test_class](dut_info=self.dut_info, save_path=test_path)
+        test_instance = self.test_classes[test_class](dut_info=self.dut_info, save_path=test_path)
 
         # Don't acquire data if doing re-analysis
         if not self.reanalyze:
-            test.run_acquire(instr_mgr=self.instr_mgr, **params['acquire'])
+            test_instance.run_acquire(instr_mgr=self.instr_mgr, **params['acquire'])
 
-        out = test.run_analysis(**params['analysis'])
+        out = test_instance.run_analysis(**params['analysis'])
+
+        self.test_results[name] = out
+        self.test_instances[name] = test_instance

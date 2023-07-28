@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import base64
+import io
 
 from ta.utils.typing_ext import PathLike
 
@@ -23,3 +25,10 @@ class FigHandler:
 
     def save_fig(self, path: PathLike):
         self.fig.savefig(fname=path)
+
+    def to_base64(self) -> str:
+        fig_str = io.BytesIO()
+
+        self.fig.savefig(fig_str, format='png')
+        fig_str.seek(0)
+        return base64.b64encode(fig_str.read()).decode()

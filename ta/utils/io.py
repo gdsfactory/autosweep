@@ -1,4 +1,5 @@
 import orjson
+import csv
 
 from ta.utils import typing_ext
 
@@ -40,3 +41,18 @@ def write_json(data: dict, path: typing_ext.PathLike) -> None:
     json_data = orjson.dumps(data, default=json_serializer, option=orjson.OPT_INDENT_2 | orjson.OPT_SERIALIZE_NUMPY)
     with open(path, 'wb') as f:
         f.write(json_data)
+
+
+def write_csv(data: list[dict], path: typing_ext.PathLike) -> None:
+    """
+
+    :param data:
+    :param path:
+    :return:
+    """
+
+    with open(path, 'w') as f:
+        w = csv.DictWriter(f, fieldnames=data[0].keys())
+        w.writeheader()
+        w.writerows(rowdicts=data)
+
