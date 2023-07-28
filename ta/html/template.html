@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>My Webpage</title>
+</head>
+<body>
+    <ul id="navigation">
+    {% for item in navigation %}
+        <li><a href="{{ item.href }}">{{ item.caption }}</a></li>
+    {% endfor %}
+    </ul>
+
+    <h1>My Webpage</h1>
+    {% for entry in entries %}
+        <h2>{{ entry['name'] }}</h2>
+        {% if 'fig' in entry %}
+        <img src="data:image/png;base64, {{ entry['fig'] }}">
+        {% endif %}
+        {% if 'specs' in entry %}
+         <table>
+            <tr>
+                <th>Spec</th>
+                <th>Value</th>
+                <th>Unit</th>
+            </tr>
+            {% for spec in entry['specs'] %}
+            <tr>
+                <td>{{ spec['spec'] }}</td>
+                <td>{{ spec['value'] }}</td>
+                <td>{{ spec['unit'] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+    {% endfor %}
+
+    {# a comment #}
+</body>
+</html>

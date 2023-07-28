@@ -7,12 +7,15 @@ from ta import sweep
 
 if TYPE_CHECKING:
     from pathlib import Path
+    from ta.utils.exec_helpers.reporter import ResultsHold
     from ta.instruments.instrument_manager import InstrumentManager
 
 
 class AbsTest(ABC):
 
-    def __init__(self, dut_info: 'DUTInfo', save_path: 'Path'):
+    _ta_test = True
+
+    def __init__(self, dut_info: 'DUTInfo', results: 'ResultsHold', save_path: 'Path'):
         self.logger = logging.getLogger(self.__class__.__name__)
 
         self.dut_info = dut_info
@@ -25,6 +28,8 @@ class AbsTest(ABC):
         self._raw_data = False
         self.metadata = None
         self.sweeps = None
+
+        self.results = results
 
     @abstractmethod
     def run_acquire(self, instr_mgr: 'InstrumentManager'):
@@ -49,8 +54,8 @@ class AbsTest(ABC):
         self._raw_data = True
 
     @abstractmethod
-    def run_analysis(self):
-        pass
+    def run_analysis(self, report_headings: list):
+        raise NotImplementedError
 
     def load_data(self):
         # no point reading in data if it's already in memory

@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 from ta.utils.typing_ext import PathLike
 from ta.utils import io
+
 if TYPE_CHECKING:
     from ta.test_exec import TestExec
 

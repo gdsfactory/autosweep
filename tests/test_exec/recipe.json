@@ -1,0 +1,28 @@
+{
+  "abc": "hello_world",
+  "instruments": ["virt_instr"],
+  "tests": [
+    [
+      "abc",
+      {
+        "class": "VirtualTest",
+        "init": {},
+        "acquire": {},
+        "analysis": {
+          "report_headings": ["Virtual IV"]
+        }
+      }
+    ],
+    [
+      "bcd",
+      {
+        "class": "NewTest",
+        "init": {},
+        "acquire": {},
+        "analysis": {
+            "report_headings": ["New Virtual IV"]
+        }
+      }
+    ]
+  ]
+}

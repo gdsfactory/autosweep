@@ -2,13 +2,18 @@ from pathlib import Path
 import logging
 
 from ta import *
+from ta.utils import registrar
 from ta.utils.generics import find_last_run
 
+import new_test
+
+
 init_logger()
+registrar.register_classes(new_test)
 logging.info("Basic Test Exec functionality:")
 
 dut = DUTInfo(part_num=PN('abc-0345', 1), ser_num=SN('123456'))
-recipe = Recipe.read_json(path=Path('../recipe.json'))
+recipe = Recipe.read_json(path=Path('recipe.json'))
 station_cfg = StationConfig.read_json(path=Path('../station_config.json'))
 
 with TestExec(dut_info=dut, recipe=recipe, station_config=station_cfg, reanalyze=False) as t:

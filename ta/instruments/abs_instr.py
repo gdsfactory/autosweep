@@ -8,6 +8,8 @@ class AbsInstrument:
     from this base class.
     """
 
+    _ta_instr = True
+
     def __init__(self, com):
         """
 
