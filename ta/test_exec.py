@@ -12,7 +12,9 @@ from ta.utils.logger import init_logger
 
 class TestExec:
     """
-    :TODO start here
+    The TestExec is used to execute a series of tests over a device. More specifically, it uses a recipe and a station
+    configuration to run setup instruments, take and analyze data and produce reports.
+
     """
 
     def __init__(self,
@@ -21,6 +23,20 @@ class TestExec:
                  station_config: 'data_types.station_config.StationConfig',
                  reanalyze: bool = False,
                  path: typing_ext.PathLike | None = None):
+
+        """
+
+        :param dut_info: The information related to the device-under-test
+        :type dut_info: ta.utils.data_types.metadata.DUTInfo
+        :param recipe: A collection of tests with parameters to execute
+        :type recipe: ta.utils.data_types.recipe.Recipe
+        :param station_config: A collection of instrument configurations specific to a certain instrument
+        :type station_config: ta.utils.data_types.station_config.StationConfig
+        :param reanalyze: When 'True', it is possible to re-analyze previously acquired test data
+        :type reanalyze: bool, default False
+        :param path: When 'reanalyze=True', this argument points to the data folder where the run is
+        :type path: str or pathlib.Path, optional
+        """
 
         self.logger = logging.getLogger(self.__class__.__name__)
 
@@ -67,7 +83,12 @@ class TestExec:
         self.status_writer(test_exec=self, path=self.run_path / status_fname)
         self.reports_generator(test_exec=self)
 
-    def run_recipe(self):
+    def run_recipe(self) -> None:
+        """
+        Executes the entire recipe
+
+        :return:
+        """
         if not self.reanalyze:
             self.logger.info("Starting instrument manager")
             self.instr_mgr = instrument_manager.InstrumentManager(station_config=self.station_config)
@@ -78,7 +99,16 @@ class TestExec:
 
         self.logger.info(f"::: Done ---+---+---+--->>")
 
-    def run_recipe_step(self, name: str, params: dict):
+    def run_recipe_step(self, name: str, params: dict) -> None:
+        """
+        Executes an individual recipe step.
+
+        :param name: The name of the recipe step
+        :type name: str
+        :param params: The full set of test parameters for the recipe step
+        :type params: dict
+        :return:
+        """
         test_class = params['class']
         self.logger.info(f"::: {name} - {test_class} ---+---+--->>")
         # create directory for each test
