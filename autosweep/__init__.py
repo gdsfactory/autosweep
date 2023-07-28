@@ -16,5 +16,4 @@ register_classes(instruments)
 register_classes(tests)
 
 __all__ = ['init_logger', 'register_classes', 'Recipe', 'StationConfig',
-           'PN', 'SN', 'DUTInfo', 'InstrumentManager', 'sweep', 'instruments',
-           'tests', 'TestExec', '__version__']
+           'PN', 'SN', 'DUTInfo', 'InstrumentManager', 'sweep', 'TestExec', '__version__']

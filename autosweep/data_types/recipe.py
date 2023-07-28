@@ -9,6 +9,7 @@ from autosweep.data_types import filereader
 class Recipe(filereader.FileWRer):
 
     def __init__(self, recipe: dict):
+        super().__init__()
         self.logger = logging.getLogger(self.__class__.__name__)
 
         self.recipe = recipe
@@ -24,7 +25,13 @@ class Recipe(filereader.FileWRer):
             return False
 
     @property
-    def instruments(self) -> tuple:
+    def instruments(self) -> tuple[str]:
+        """
+        Returns the instruments needed to run this recipe.
+
+        :return: The instrument instance names needed
+        :rtype: tuple[str]
+        """
         return tuple(self.recipe['instruments'])
 
     def to_json(self, path: typing_ext.PathLike):
@@ -34,5 +41,10 @@ class Recipe(filereader.FileWRer):
         return self.recipe
 
     def tests(self) -> Iterable[tuple]:
+        """
+        Used to iterate over tests.
+
+        :yields: tuple[str, dict]
+        """
         for test in self.recipe['tests']:
             yield tuple(test)

@@ -4,9 +4,7 @@ from pathlib import Path
 from autosweep.exec_helpers import status_writer, reporter
 from autosweep.data_types import recipe, metadata, station_config
 from autosweep.instruments import instrument_manager
-from autosweep.utils import typing_ext
-from autosweep.utils import registrar
-from autosweep.utils.logger import init_logger
+from autosweep.utils import typing_ext, registrar, io, logger
 
 
 class TestExec:
@@ -20,6 +18,8 @@ class TestExec:
     :type recipe: autosweep.data_types.recipe.Recipe
     :param station_config: A collection of instrument configurations specific to a certain instrument
     :type station_config: autosweep.data_types.station_config.StationConfig
+    :param gen_archive: Generate a ZIP file at the end of the data collection and report generation
+    :type gen_archive: bool, default False
     :param reanalyze: When 'True', it is possible to re-analyze previously acquired test data
     :type reanalyze: bool, default False
     :param path: When 'reanalyze=True', this argument points to the data folder where the run is
@@ -30,6 +30,7 @@ class TestExec:
                  dut_info: 'metadata.DUTInfo',
                  recipe: 'recipe.Recipe',
                  station_config: 'station_config.StationConfig',
+                 gen_archive: bool = False,
                  reanalyze: bool = False,
                  path: typing_ext.PathLike | None = None):
 
@@ -40,6 +41,7 @@ class TestExec:
         self.station_config = station_config
 
         self.reanalyze = reanalyze
+        self.gen_archive = gen_archive
 
         self.instr_mgr = None
         # self.test_classes = {VirtualTest.__name__: VirtualTest}
@@ -72,7 +74,7 @@ class TestExec:
         self.run_path.mkdir(exist_ok=True)
 
         # Any calls made to the logger will not be recorded to file if they are made before calling init_logger()
-        init_logger(path=self.run_path / f'runlog_{self.timestamp["start"]}.txt')
+        logger.init_logger(path=self.run_path / f'runlog_{self.timestamp["start"]}.txt')
 
         return self
 
@@ -85,6 +87,9 @@ class TestExec:
         status_fname = f'status_renalysis_{self.timestamp["start"]}.json' if self.reanalyze else 'status.json'
         self.status_writer(test_exec=self, path=self.run_path / status_fname)
         self.reports_generator(test_exec=self)
+
+        if self.gen_archive:
+            io.write_archive(src_path=self.run_path, dst_path=self.run_path.parent)
 
     def run_recipe(self) -> None:
         """

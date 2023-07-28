@@ -1,3 +1,5 @@
+import zipfile
+
 import orjson
 import csv
 import typing
@@ -73,3 +75,21 @@ def write_csv(data: list[dict], path: typing_ext.PathLike) -> None:
         w.writeheader()
         w.writerows(rowdicts=data)
 
+
+def write_archive(src_path: typing_ext.PathLike, dst_path: typing_ext.PathLike) -> None:
+    """
+    Used to generate a ZIP file of a whole folder, specifically test data for archiving purposes. The generated ZIP file
+    has the name of the folder to archive.
+
+    :param src_path: The folder to archive
+    :type src_path: str or pathlib.Path
+    :param dst_path: The destination of the ZIP file.
+    :type dst_path: str or pathlib.Path
+    :return: None
+    """
+
+    dst_fn = dst_path / f'{src_path.name}.zip'
+
+    with zipfile.ZipFile(dst_fn, mode='w') as arc:
+        for fn in src_path.rglob('*'):
+            arc.write(fn, arcname=fn.relative_to(src_path.parent))
