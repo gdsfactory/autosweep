@@ -4,6 +4,6 @@
 .. currentmodule:: ta.test_exec
 
 .. autoclass:: TestExec
-   :members:                             
+   :members:
    :show-inheritance:
    :inherited-members:

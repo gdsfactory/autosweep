@@ -28,6 +28,8 @@ ta.utils
    :template: custom_mod.rst
    :recursive:
 
+   ta.utils.data_types
+   ta.utils.exec_helpers
    ta.utils.generics
    ta.utils.io
    ta.utils.logger

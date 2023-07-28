@@ -4,6 +4,6 @@
 .. currentmodule:: ta.sweep.sweep_parser
 
 .. autoclass:: Sweep
-   :members:                             
+   :members:
    :show-inheritance:
    :inherited-members:

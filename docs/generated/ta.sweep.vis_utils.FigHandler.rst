@@ -4,6 +4,6 @@
 .. currentmodule:: ta.sweep.vis_utils
 
 .. autoclass:: FigHandler
-   :members:                             
+   :members:
    :show-inheritance:
    :inherited-members:

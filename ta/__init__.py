@@ -10,5 +10,11 @@ from ta import instruments
 from ta import tests
 from ta.test_exec import TestExec
 
+from ta.utils.params import version as __version__
+
 register_classes(instruments)
 register_classes(tests)
+
+__all__ = ['init_logger', 'register_classes', 'Recipe', 'StationConfig',
+           'PN', 'SN', 'DUTInfo', 'InstrumentManager', 'sweep', 'instruments',
+           'tests', 'TestExec', '__version__']

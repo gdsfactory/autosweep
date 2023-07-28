@@ -159,4 +159,7 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 .idea/
 
-tests/test_exec/data/
+.DS_Store
+
+tests/test_exec/data/**
+!tests/test_exec/data/.gitkeep

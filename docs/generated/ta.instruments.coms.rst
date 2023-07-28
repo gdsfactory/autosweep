@@ -1,7 +1,7 @@
-﻿ta
-==
+ta.instruments.coms
+===================
 
-.. automodule:: ta
+.. automodule:: ta.instruments.coms
 
    
    
@@ -28,9 +28,5 @@
    :template: custom_mod.rst
    :recursive:
 
-   ta.instruments
-   ta.sweep
-   ta.test_exec
-   ta.tests
-   ta.utils
+   ta.instruments.coms.base_com
 

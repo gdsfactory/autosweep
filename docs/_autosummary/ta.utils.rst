@@ -1,4 +1,4 @@
-ta.utils
+﻿ta.utils
 ========
 
 .. automodule:: ta.utils
@@ -27,6 +27,8 @@ ta.utils
    :toctree:
    :recursive:
 
+   ta.utils.data_types
+   ta.utils.exec_helpers
    ta.utils.generics
    ta.utils.io
    ta.utils.logger
