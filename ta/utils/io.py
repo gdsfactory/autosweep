@@ -1,14 +1,16 @@
 import orjson
 
-from ta.base.typing_ext import PathLike
-import ta.base.data_types.dut_info
-import ta.sweep.sweep_parser
+from ta.utils.typing_ext import PathLike
+from ta.utils import data_types
+from ta.sweep import sweep_parser
 
 
 def json_serializer(obj):
-    if isinstance(obj, ta.base.data_types.dut_info.DUTInfo):
+    if isinstance(obj, data_types.dut_info.DUTInfo):
         return obj.part_num
-    if isinstance(obj, ta.sweep.sweep_parser.Sweep):
+    if isinstance(obj, data_types.metadata_classes.TimeStamp):
+        return str(obj)
+    if isinstance(obj, sweep_parser.Sweep):
         return obj._traces
 
     raise TypeError(f"{type(obj)} is not serialized by json_serializer")

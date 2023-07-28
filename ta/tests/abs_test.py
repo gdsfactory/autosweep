@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 import logging
 from typing import TYPE_CHECKING
 
-from ta.base.io import write_json, read_json
-from ta.base.data_types.dut_info import DUTInfo
+from ta.utils.io import write_json, read_json
+from ta.utils.data_types.dut_info import DUTInfo
 
 if TYPE_CHECKING:
     from pathlib import Path

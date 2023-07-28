@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from ta.base.params import datetime_frmt
+from ta.utils.params import datetime_frmt
 
 
 class PN:

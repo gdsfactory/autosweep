@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ta.base.typing_ext import PathLike
+from ta.utils.typing_ext import PathLike
 
 
 class FigHandler:

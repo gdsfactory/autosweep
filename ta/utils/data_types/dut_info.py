@@ -1,6 +1,6 @@
 import logging
 
-from ta.base.data_types.metadata_classes import PN, SN
+from ta.utils.data_types.metadata_classes import PN, SN
 
 
 class DUTInfo:

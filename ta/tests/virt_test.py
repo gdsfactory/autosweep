@@ -1,14 +1,16 @@
 from ta.tests.abs_test import AbsTest
 from typing import TYPE_CHECKING
+from time import sleep
 import numpy as np
 
-from ta.base.registrar import register_test
+
+from ta.utils.registrar import register_test
 from ta.sweep.sweep_parser import Sweep
 from ta.sweep.vis_utils import FigHandler
 if TYPE_CHECKING:
     from pathlib import Path
     from ta.instruments.instrument_manager import InstrumentManager
-    from ta.base.data_types.dut_info import DUTInfo
+    from ta.utils.data_types.dut_info import DUTInfo
 
 
 @register_test
@@ -27,6 +29,7 @@ class VirtualTest(AbsTest):
         attrs = {'v': ("Voltage", "V"), 'i0': ("Current", "A"), 'i1': ("Current", "A")}
 
         s = Sweep(traces=traces, attrs=attrs)
+        sleep(2)
 
         self.save_data(sweeps={'iv': s}, metadata=None)
 

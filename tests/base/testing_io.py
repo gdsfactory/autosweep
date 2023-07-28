@@ -1,7 +1,7 @@
 import logging
 
-from ta.base.io import write_json, read_json
-from ta.base.logger import init_logger
+from ta.utils.io import write_json, read_json
+from ta.utils.logger import init_logger
 
 
 # init_logger(path='testing.txt')

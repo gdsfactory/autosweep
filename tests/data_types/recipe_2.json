@@ -1,0 +1,14 @@
+{
+  "abc": "hello_world",
+  "tests": [
+    [
+      "abc",
+      {
+        "class": "VirtualTest",
+        "init": {},
+        "acquire": {},
+        "analysis": {}
+      }
+    ]
+  ]
+}

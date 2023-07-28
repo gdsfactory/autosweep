@@ -2,8 +2,8 @@ import logging
 import numpy as np
 from typing import Iterable
 
-from ta.base.typing_ext import PathLike
-from ta.base import io
+from ta.utils.typing_ext import PathLike
+from ta.utils import io
 
 
 class Sweep:
