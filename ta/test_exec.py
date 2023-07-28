@@ -2,8 +2,9 @@ import logging
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from ta.utils.data_types.metadata_classes import TimeStamp
-from ta.instruments.instrument_manager import InstrumentManager
+from ta.utils import data_types
+from ta.instruments import instrument_manager
+from ta.utils import typing_ext
 from ta.utils.registrar import TEST_CLASSES
 from ta.tests.virt_test import VirtualTest
 from ta.utils.exec_helpers.status_writer import write_status
@@ -16,7 +17,8 @@ if TYPE_CHECKING:
 
 class TestExec:
 
-    def __init__(self, dut_info: 'DUTInfo', recipe: 'Recipe', reanalyze: bool = False):
+    def __init__(self, dut_info: 'DUTInfo', recipe: 'Recipe', reanalyze: bool = False,
+                 path: typing_ext.PathLike | None = None):
         self.logger = logging.getLogger(self.__class__.__name__)
 
         self.dut_info = dut_info
@@ -28,13 +30,17 @@ class TestExec:
         # self.test_classes = {VirtualTest.__name__: VirtualTest}
         self.test_classes = TEST_CLASSES
 
-        self.timestamp = {'start': TimeStamp(), 'end': None}
+        self.timestamp = {'start': data_types.metadata.TimeStamp(),
+                          'end': None}
 
         run_name = f'{self.dut_info.part_num}_{self.dut_info.ser_num}_{self.timestamp["start"]}'
-        self.run_path = Path('data') / run_name
+        if self.reanalyze:
+            self.run_path = Path(path)
+        else:
+            self.run_path = Path('data') / run_name
 
         self.status_writer = write_status
-        self.results_writer = results_writer
+        # self.results_writer = results_writer
 
     def __enter__(self):
         self.logger.info("Entering")
@@ -46,13 +52,13 @@ class TestExec:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.instr_mgr.close_instruments()
 
-        self.timestamp['end'] = TimeStamp()
+        self.timestamp['end'] = data_types.metadata.TimeStamp()
 
         write_status(test_exec=self, path=self.run_path / 'status.json')
 
     def run_recipe(self):
         self.logger.info("Starting instrument manager")
-        self.instr_mgr = InstrumentManager()
+        self.instr_mgr = instrument_manager.InstrumentManager()
 
         for name, params in self.recipe.tests():
             self.run_recipe_step(name=name, params=params)

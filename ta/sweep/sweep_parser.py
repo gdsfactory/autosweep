@@ -2,13 +2,10 @@ import logging
 import numpy as np
 from typing import Iterable
 
-from ta.utils.typing_ext import PathLike
-from ta.utils import io
-
 
 class Sweep:
 
-    def __init__(self, traces: dict, attrs: dict | None = None):
+    def __init__(self, traces: dict, attrs: dict | None = None, metadata: dict | None = None):
         self.logger = logging.getLogger(self.__class__.__name__)
 
         # checks on input types and shapes
@@ -34,6 +31,7 @@ class Sweep:
 
         self._ranges = {}
         self._len = len(self['x'])
+        self._col_num = len(self._traces)
         for k, v in self._traces.items():
             self._ranges[k] = (np.min(v), np.max(v))
 
@@ -43,11 +41,29 @@ class Sweep:
                       f"length."
                 raise ValueError(msg)
 
+        self.metadata = metadata if metadata else {}
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        return Sweep(**data)
+
+    def __str__(self) -> str:
+        return self.__repr__()
+
+    def __repr__(self) -> str:
+        msg = f"<{self.__module__}.{self.__class__.__name__}, " \
+               f"x-col: {self.x_col}, y-cols: {self.y_cols}, len: {len(self)}>"
+        return msg
+
     def __len__(self) -> int:
         return self._len
 
     def __getitem__(self, item):
         return self._traces[self.get_trace_col(col=item)]
+
+    @property
+    def shape(self) -> tuple:
+        return self._col_num, self._len
 
     @property
     def attrs(self) -> dict[str, tuple]:
@@ -78,7 +94,7 @@ class Sweep:
             raise KeyError(f"The trace '{col}' does not exist")
 
     def to_dict(self) -> dict:
-        raise NotImplementedError
+        return {'traces': self._traces, 'attrs': self.attrs, 'metadata': self.metadata}
 
     def get_axis_labels(self, use_generic_names: bool = False) -> dict[str, str]:
         labels = {}
@@ -108,7 +124,3 @@ class Sweep:
                 self._attrs[col] = (desc, unit)
             else:
                 self._attrs[col] = (self._attrs[col][0], unit)
-
-
-def read_json(path: PathLike):
-    data = io.read_json(path=path)

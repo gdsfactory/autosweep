@@ -3,7 +3,7 @@ import logging
 from ta.utils.logger import init_logger
 from ta.utils.data_types.recipe import Recipe
 from ta.utils.data_types.dut_info import DUTInfo
-from ta.utils.data_types.metadata_classes import PN, SN, TimeStamp
+from ta.utils.data_types.metadata import PN, SN, TimeStamp
 
 
 init_logger()

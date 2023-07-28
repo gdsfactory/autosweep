@@ -1,14 +1,14 @@
 import orjson
 
-from ta.utils.typing_ext import PathLike
-from ta.utils import data_types
+from ta.utils import typing_ext
+from ta.utils.data_types import metadata
 from ta.sweep import sweep_parser
 
 
 def json_serializer(obj):
-    if isinstance(obj, data_types.dut_info.DUTInfo):
-        return obj.part_num
-    if isinstance(obj, data_types.metadata_classes.TimeStamp):
+    if isinstance(obj, metadata.DUTInfo):
+        return obj.to_dict()
+    if isinstance(obj, metadata.TimeStamp):
         return str(obj)
     if isinstance(obj, sweep_parser.Sweep):
         return obj._traces
@@ -16,7 +16,7 @@ def json_serializer(obj):
     raise TypeError(f"{type(obj)} is not serialized by json_serializer")
 
 
-def read_json(path: PathLike) -> dict:
+def read_json(path: typing_ext.PathLike) -> dict:
     """
 
     :param path:
@@ -29,7 +29,7 @@ def read_json(path: PathLike) -> dict:
     return data
 
 
-def write_json(data: dict, path: PathLike) -> None:
+def write_json(data: dict, path: typing_ext.PathLike) -> None:
     """
 
     :param data:
