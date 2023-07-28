@@ -8,6 +8,11 @@ if TYPE_CHECKING:
 
 
 class ResultsHold:
+    """
+    A class to hold results, including specs and entries that will go into the HTML report. Individual tests run by the
+    TestExec add entries to this instance. Finally, the results are validated and passed onto the method which generates
+    the appropriate files by the TestExec.
+    """
 
     def __init__(self):
         self._specs = {}
@@ -22,6 +27,19 @@ class ResultsHold:
         return self._entries
 
     def add_spec(self, report_heading: str, spec: str, unit: str, value: int | float | bool) -> None:
+        """
+        Add a spec entry
+
+        :param report_heading: The heading in the report to associate with this spec
+        :type report_heading: str
+        :param spec: The spec name
+        :type spec: str
+        :param unit: The unit of the spec. If there is no unit, pass an empty string.
+        :type unit: str
+        :param value: The value of the spec.
+        :type value: int, float, or bool
+        :return: None
+        """
         # type checking
         if not isinstance(report_heading, str):
             raise TypeError("'report_heading' argument must be of type 'str'")
@@ -37,23 +55,34 @@ class ResultsHold:
 
         self._specs[report_heading].append({'spec': spec, 'unit': unit, 'value': value})
 
-    def clear_specs(self, report_name: str):
-        if not isinstance(report_name, str):
-            raise TypeError("'report_name' argument must be of type 'str'")
-
-        if report_name not in self._specs:
-            raise ValueError(f"the 'report_name', '{report_name}' is not a valid value")
-
-        self._specs[report_name] = []
-
-    def add_report_entry(self, report_heading: str, fig_hdlr: sweep.FigHandler | None = None, info: dict | None = None):
+    def clear_specs(self, report_heading: str) -> None:
         """
-        Overwriting previous value
+        Clears all specs associated with a given report heading
 
-        :param report_heading:
-        :param fig_hdlr:
-        :param info:
-        :return:
+        :param report_heading: The heading in the report for which to clear specs
+        :type report_heading: str
+        :return: None
+        """
+        if not isinstance(report_heading, str):
+            raise TypeError("'report_heading' argument must be of type 'str'")
+
+        if report_heading not in self._specs:
+            raise ValueError(f"the 'report_heading', '{report_heading}' is not a valid value")
+
+        self._specs[report_heading] = []
+
+    def add_report_entry(self, report_heading: str, fig_hdlr: sweep.FigHandler | None = None,
+                         info: dict | None = None) -> None:
+        """
+        Adds a report entry to the results. This consists of a figure or a collection of text.
+
+        :param report_heading: The heading in the report for which to associate the figure or info
+        :type report_heading: str
+        :param fig_hdlr: The figure to plot in the report, only one figure per report heading is supported
+        :type fig_hdlr: ta.sweep.vis_utils.FigHandler, optional
+        :param info: A collection of supplimentary information that will be printed under the heading
+        :type info: dict, optional
+        :return: None
         """
         if not isinstance(report_heading, str):
             raise TypeError("'report_name' argument must be of type 'str'")
@@ -67,13 +96,25 @@ class ResultsHold:
 
         self._entries[report_heading] = {'fig': fig_hdlr, 'info': info}
 
-    def validate(self):
+    def validate(self) -> None:
+        """
+        The TestExec runs this method after all testing is complete to validate the contents of the report
+
+        :return: None
+        """
         for report_name in self._specs:
             if report_name not in self._entries:
                 raise Exception(f"The spec report_name, '{report_name}' does not have a corresponding report entry.")
 
 
-def gen_reports(test_exec: 'TestExec'):
+def gen_reports(test_exec: 'TestExec') -> None:
+    """
+    This function takes information from the test_exec to produce the report and csv data.
+
+    :param test_exec: The test exec
+    :type test_exec: ta.test_exec.TestExec
+    :return: None
+    """
 
     # write the CSV
     specs = []
@@ -113,6 +154,14 @@ def gen_reports(test_exec: 'TestExec'):
         f.write(html_str)
 
 
-def parse_info(info: dict):
+def parse_info(info: dict) -> dict:
+    """
+    A function to parse the info into a format that can be embedded into the template.
+
+    :param info: The info to parse
+    :type info: dict
+    :return: The parsed info
+    :rtype: dict
+    """
     return info
 
