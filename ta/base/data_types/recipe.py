@@ -1,7 +1,7 @@
 import logging
-from typing import Generator
+from typing import Iterable
 
-from ta.base.typing_ext import Pathlike
+from ta.base.typing_ext import PathLike
 from ta.base.io import read_json, write_json
 
 
@@ -13,7 +13,7 @@ class Recipe:
         self.recipe = recipe
 
     @classmethod
-    def read_json(cls, path: Pathlike):
+    def read_json(cls, path: PathLike):
         data = read_json(path=path)
         return cls(recipe=data)
 
@@ -23,9 +23,9 @@ class Recipe:
         else:
             return False
 
-    def to_json(self, path: Pathlike):
+    def to_json(self, path: PathLike):
         write_json(data=self.recipe, path=path)
 
-    def tests(self) -> None:
+    def tests(self) -> Iterable[tuple]:
         for test in self.recipe['tests']:
             yield tuple(test)

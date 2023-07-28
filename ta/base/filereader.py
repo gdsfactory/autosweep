@@ -1,7 +1,7 @@
 from pathlib import Path
 from abc import ABC, abstractmethod
 
-from ta.base.typing_ext import Pathlike
+from ta.base.typing_ext import PathLike
 
 
 class FileWRerBaseClass(ABC):
@@ -26,14 +26,14 @@ class FileWRer(FileWRerBaseClass):
     filename = None
 
     @classmethod
-    def read_json(cls, path: Pathlike):
+    def read_json(cls, path: PathLike):
         pass
 
     @property
     def filename(self) -> Path:
         return self.filename
 
-    def write_json(self, path: Pathlike):
+    def write_json(self, path: PathLike):
         pass
 
     def to_dict(self, **kwargs) -> dict:

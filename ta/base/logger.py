@@ -1,10 +1,10 @@
 import logging
 
 from ta.base.params import logger_frmt, logger_lvl
-from ta.base.typing_ext import Pathlike
+from ta.base.typing_ext import PathLike
 
 
-def init_logger(path: Pathlike | None = None):
+def init_logger(path: PathLike | None = None):
 
     handlers = [logging.StreamHandler()]
     if path:

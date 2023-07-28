@@ -32,11 +32,11 @@ class SN:
         return self.num
 
 
-class Timestamp:
+class TimeStamp:
 
     def __init__(self, timestamp: str | datetime | None = None):
         if timestamp:
-            if isinstance(timestamp, Timestamp):
+            if isinstance(timestamp, TimeStamp):
                 self.timestamp = timestamp.timestamp
             elif isinstance(timestamp, datetime):
                 self.timestamp = timestamp
@@ -51,7 +51,7 @@ class Timestamp:
         return self.timestamp_str
 
     def __eq__(self, other):
-        if isinstance(other, Timestamp):
+        if isinstance(other, TimeStamp):
             return self.timestamp == other.timestamp
         else:
             return False

@@ -1,5 +1,9 @@
 import logging
 import numpy as np
+from typing import Iterable
+
+from ta.base.typing_ext import PathLike
+from ta.base import io
 
 
 class Sweep:
@@ -61,6 +65,10 @@ class Sweep:
     def y_cols(self) -> tuple:
         return tuple(self._traces.keys())[1:]
 
+    def itercols(self) -> Iterable[tuple[str, np.ndarray, np.ndarray]]:
+        for y in self.y_cols:
+            yield y, self['x'], self[y]
+
     def get_trace_col(self, col) -> str:
         if col in self._aliases:
             return self._aliases[col]
@@ -69,13 +77,18 @@ class Sweep:
         else:
             raise KeyError(f"The trace '{col}' does not exist")
 
+    def to_dict(self) -> dict:
+        raise NotImplementedError
+
     def get_axis_labels(self, use_generic_names: bool = False) -> dict[str, str]:
         labels = {}
+        if not self.attrs:
+            raise Exception("No axis labels without Sweep attributes")
 
         if use_generic_names:
             keys = dict(map(reversed, self._aliases.items()))
 
-        for k, v in self._traces.items():
+        for k, v in self.attrs.items():
             if use_generic_names:
                 k = keys[k]
 
@@ -95,3 +108,7 @@ class Sweep:
                 self._attrs[col] = (desc, unit)
             else:
                 self._attrs[col] = (self._attrs[col][0], unit)
+
+
+def read_json(path: PathLike):
+    data = io.read_json(path=path)

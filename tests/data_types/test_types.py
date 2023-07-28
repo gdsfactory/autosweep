@@ -3,7 +3,7 @@ import logging
 from ta.base.logger import init_logger
 from ta.base.data_types.recipe import Recipe
 from ta.base.data_types.dut_info import DUTInfo
-from ta.base.data_types.metadata_classes import PN, SN, Timestamp
+from ta.base.data_types.metadata_classes import PN, SN, TimeStamp
 
 
 init_logger()
@@ -23,10 +23,10 @@ logging.info(f"{dut = }")
 logging.info(f"{dut.ser_num}")
 logging.info(f"{str(dut)}")
 
-ts = Timestamp()
+ts = TimeStamp()
 logging.info(f"{ts = }")
 logging.info(f"{ts}")
-ts1 = Timestamp(timestamp=ts)
+ts1 = TimeStamp(timestamp=ts)
 logging.info(f"{ts1 = }")
 logging.info(f"{ts1}")
 assert ts1 == ts, "Timestamps should match"

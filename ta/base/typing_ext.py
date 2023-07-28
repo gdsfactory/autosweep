@@ -1,3 +1,4 @@
 from pathlib import Path
 
-Pathlike = Path | str
+PathLike = Path | str
+ListLike = list | tuple
