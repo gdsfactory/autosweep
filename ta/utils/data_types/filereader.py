@@ -4,12 +4,7 @@ from abc import ABC, abstractmethod
 from ta.utils.typing_ext import PathLike
 
 
-class FileWRerBaseClass(ABC):
-
-    @property
-    @abstractmethod
-    def filename(self) -> Path:
-        pass
+class GeneralIOClass(ABC):
 
     @abstractmethod
     def to_dict(self, **kwargs) -> dict:
@@ -21,24 +16,24 @@ class FileWRerBaseClass(ABC):
         pass
 
 
-class FileWRer(FileWRerBaseClass):
-
-    filename = None
+class FileWRer(GeneralIOClass):
 
     @classmethod
     def read_json(cls, path: PathLike):
+        pass
+
+    @classmethod
+    def from_dict(cls, data: dict):
         pass
 
     @property
     def filename(self) -> Path:
         return self.filename
 
-    def write_json(self, path: PathLike):
+    def to_json(self, path: PathLike):
         pass
 
     def to_dict(self, **kwargs) -> dict:
         return vars(self)
 
-    def from_dict(cls, data):
-        pass
 

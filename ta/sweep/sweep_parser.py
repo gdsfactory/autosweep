@@ -2,8 +2,11 @@ import logging
 import numpy as np
 from typing import Iterable
 
+from ta.utils.data_types import filereader
+from ta.utils import ta_math
 
-class Sweep:
+
+class Sweep(filereader.GeneralIOClass):
 
     def __init__(self, traces: dict, attrs: dict | None = None, metadata: dict | None = None):
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -20,7 +23,7 @@ class Sweep:
             if attrs.keys() != traces.keys():
                 raise ValueError("The keys of 'traces' and 'attrs' must match.")
 
-            self._attrs = attrs
+            self._attrs = {k: tuple(attr) for k, attr in attrs.items()}
 
         # parsing data
         self._traces = {k: np.array(v) for k, v in traces.items()}
@@ -108,7 +111,10 @@ class Sweep:
             if use_generic_names:
                 k = keys[k]
 
-            labels[k] = f"{v[0]} ({v[1]})"
+            if len(v) == 2:
+                labels[k] = f"{v[0]} ({v[1]})"
+            else:
+                labels[k] = v[0]
 
         return labels
 
@@ -124,3 +130,30 @@ class Sweep:
                 self._attrs[col] = (desc, unit)
             else:
                 self._attrs[col] = (self._attrs[col][0], unit)
+
+    def filter_range(self, x_min: float, x_max: float):
+        idx_min = ta_math.find_nearest_idx(array=self['x'], val=x_min)
+        idx_max = ta_math.find_nearest_idx(array=self['x'], val=x_max)
+
+        traces = {}
+        for col, trace in self._traces.items():
+            traces[col] = trace[idx_min:idx_max]
+
+        s = Sweep(traces=traces,
+                  attrs=self.attrs if self.attrs else None,
+                  metadata=self.metadata if self.metadata else None)
+
+        return s
+
+    # def find_x_intercept(self, val: float, y_col: str):
+    #     y = self[self.get_trace_col(col=y_col)]
+    #     raise NotImplementedError
+    #
+    # def find_y_intercept(self, val: float, y_col: str):
+    #     raise NotImplementedError
+    # #
+    # # def find_poly_fit(self, deg: int, y_col: str):
+    # #     raise NotImplementedError
+    # #
+    # # def find_fft(self, y_col: str):
+    # #     raise NotImplementedError
