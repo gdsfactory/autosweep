@@ -31,6 +31,15 @@ class AbsTest(ABC):
         raise NotImplementedError
 
     def save_data(self, sweeps: dict | None = None, metadata: dict | None = None):
+        for key, s in sweeps.items():
+            if not isinstance(key, str):
+                msg = f"The 'sweep' key, '{key}' should be a str"
+                raise TypeError(msg)
+
+            if not isinstance(s, sweep.Sweep):
+                msg = f"The 'sweep' value for key '{key}' should be a ta.sweep.Sweep class instance"
+                raise TypeError(msg)
+
         self.sweeps = sweeps
         self.metadata = metadata if metadata else {}
 
@@ -39,12 +48,11 @@ class AbsTest(ABC):
 
         self._raw_data = True
 
-    def load_data(self):
-        # no point reading in data if it's already in memory
-        if not self._raw_data:
-            self.sweeps, self.metadata, _ = sweep.io.read_json(path=self.save_path / self.raw_data_fname)
-
     @abstractmethod
     def run_analysis(self):
         pass
 
+    def load_data(self):
+        # no point reading in data if it's already in memory
+        if not self._raw_data:
+            self.sweeps, self.metadata, _ = sweep.io.read_json(path=self.save_path / self.raw_data_fname)

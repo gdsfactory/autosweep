@@ -49,3 +49,9 @@ class VirtualTest(AbsTest):
         ax.set_ylabel(labels['i0'])
 
         fig_hdlr.save_fig(path=self.save_path / 'iv.png')
+
+        specs = [{'spec': 'resist_i0', 'value': 10, 'unit': 'ohm'},
+                 {'spec': 'resist_i1', 'value': 20, 'unit': 'ohm'}]
+        info = {"hello world"}
+        results = [{'report_name': "Virtual IV", 'fig': fig_hdlr, 'specs': specs, 'info': info}]
+        return results

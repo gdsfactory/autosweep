@@ -8,4 +8,7 @@ from ta.utils.registrar import register_instr
 
 @register_instr
 class NewInstr(abs_instr.AbsInstrument):
-    pass
+
+    def get_idn(self):
+        self._idn = "NewInstr, v1.0.0"
+        return self.idn

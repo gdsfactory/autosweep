@@ -3,6 +3,7 @@ import inspect
 
 from ta.utils import data_types
 from ta.utils import registrar
+from ta.instruments import abs_instr
 
 
 class InstrumentManager:
@@ -18,7 +19,7 @@ class InstrumentManager:
 
         self.instr_classes = registrar.INSTR_CLASSES
 
-        self.instrs = {}
+        self._instrs = {}
 
     def __enter__(self):
         return self
@@ -26,20 +27,24 @@ class InstrumentManager:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close_instruments()
 
-    def load_instrument(self, instr_name: str):
+    @property
+    def instrs(self) -> dict:
+        return self._instrs
+
+    def load_instrument(self, instr_name: str) -> abs_instr.AbsInstrument:
         if instr_name not in self.station_config.instruments:
             raise ValueError(f"{instr_name} is not an instrument in the station config")
 
         instr_params = dict(self.station_config.instruments[instr_name])
 
         obj = self.instr_classes[instr_params.pop('class')]
-        self.logger.info(f"[{instr_name}] {obj}")
+        self.logger.info(f"[{instr_name}] Initializing .....")
 
         sig = inspect.signature(obj)
         for par in instr_params:
             if par not in sig.parameters:
-                msg = f"For the instrument instance name '{instr_name}', the key '{par}' is not defined and should be " \
-                      f"removed"
+                msg = f"For the instrument instance name '{instr_name}', the key '{par}' is not defined and " \
+                      f"should be removed"
                 raise ValueError(msg)
 
         for par, val in sig.parameters.items():
@@ -48,6 +53,11 @@ class InstrumentManager:
                     msg = f"For the instrument instance name '{instr_name}', a value for the key '{par}' must " \
                           f"be defined"
                     raise ValueError(msg)
+
+        instr = obj(**instr_params)
+        self.logger.info(f"[{instr_name}] {instr.idn}")
+        self._instrs[instr_name] = instr
+        return instr
 
     def load_instruments(self, instr_names):
         if isinstance(instr_names, str):

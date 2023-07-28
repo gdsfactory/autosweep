@@ -10,5 +10,5 @@ class VirtualInstr(abs_instr.AbsInstrument):
         super().__init__(com=com)
 
     def get_idn(self) -> str:
-        self._idn = "Virtual Instrument"
+        self._idn = "Virtual Instrument, v1.0.0, sn:1234"
         return self.idn
