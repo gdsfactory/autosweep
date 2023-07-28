@@ -1,0 +1,2 @@
+class InstrumentManager:
+    pass
