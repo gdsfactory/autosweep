@@ -1,8 +1,11 @@
 import logging
 
 from ta.base.io import write_json, read_json
+from ta.base.logger import init_logger
 
 
+# init_logger(path='testing.txt')
+init_logger()
 data = {'hello': {'1': 'a', 'b': 2}, 'world': '123'}
 filename = 'temp.json'
 
