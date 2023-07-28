@@ -28,7 +28,7 @@ class AbsTest(ABC):
 
     @abstractmethod
     def run_acquire(self, instr_mgr: 'InstrumentManager'):
-        pass
+        raise NotImplementedError
 
     def save_data(self, sweeps: dict | None = None, metadata: dict | None = None):
         self.sweeps = sweeps

@@ -30,7 +30,6 @@ class TestExec:
         self.instr_mgr = None
         # self.test_classes = {VirtualTest.__name__: VirtualTest}
 
-        registrar.register_classes(tests)
         self.test_classes = registrar.TEST_CLASSES
 
         self.timestamp = {'start': data_types.metadata.TimeStamp(),
@@ -54,7 +53,8 @@ class TestExec:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.instr_mgr.close_instruments()
+        if not self.reanalyze:
+            self.instr_mgr.close_instruments()
 
         self.timestamp['end'] = data_types.metadata.TimeStamp()
 
@@ -62,8 +62,10 @@ class TestExec:
         write_status(test_exec=self, path=self.run_path / status_fname)
 
     def run_recipe(self):
-        self.logger.info("Starting instrument manager")
-        self.instr_mgr = instrument_manager.InstrumentManager()
+        if not self.reanalyze:
+            self.logger.info("Starting instrument manager")
+            self.instr_mgr = instrument_manager.InstrumentManager(station_config=self.station_config)
+            self.instr_mgr.load_instruments(instr_names=self.recipe.instruments)
 
         for name, params in self.recipe.tests():
             self.run_recipe_step(name=name, params=params)

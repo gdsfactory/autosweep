@@ -23,6 +23,10 @@ class Recipe(filereader.FileWRer):
         else:
             return False
 
+    @property
+    def instruments(self) -> tuple:
+        return tuple(self.recipe['instruments'])
+
     def to_json(self, path: typing_ext.PathLike):
         io.write_json(data=self.recipe, path=path)
 

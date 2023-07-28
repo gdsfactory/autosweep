@@ -1,9 +1,11 @@
 from pathlib import Path
 import logging
+import types
 
 from ta.utils.data_types import filereader
 from ta.utils import typing_ext
 from ta.utils import io
+from ta.utils import generics
 
 
 class StationConfig(filereader.FileWRer):
@@ -11,9 +13,12 @@ class StationConfig(filereader.FileWRer):
     def __init__(self, station_config: dict):
         self.logger = logging.getLogger(self.__class__.__name__)
 
-        self.station_config = station_config
+        self.station_config = generics.load_into_mappingproxytype(data=station_config)
+        # self.station_config = station_config
 
-        self.station_config['paths']['base'] = Path(self.station_config['paths']['base'])
+        self.base_path = Path(self.station_config['paths']['base'])
+
+        # validate the station config, especially instrument side
 
     @classmethod
     def from_dict(cls, data):
@@ -21,7 +26,11 @@ class StationConfig(filereader.FileWRer):
 
     @property
     def data_path(self) -> Path:
-        return self.station_config['paths']['base'] / self.station_config['paths']['data']
+        return self.base_path / self.station_config['paths']['data']
+
+    @property
+    def instruments(self):
+        return self.station_config['instruments']
 
     def to_json(self, path: typing_ext.PathLike):
         io.write_json(data=self.to_dict(), path=path)

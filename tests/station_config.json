@@ -7,6 +7,10 @@
   "instruments": {
     "virt_instr": {
       "class": "VirtualInstr"
+    },
+    "new_instr": {
+      "class": "NewInstr",
+      "com": null
     }
   }
 }

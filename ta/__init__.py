@@ -7,4 +7,3 @@ from ta.instruments.instrument_manager import InstrumentManager
 from ta import sweep
 
 from ta.test_exec import TestExec
-

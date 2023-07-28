@@ -1,5 +1,6 @@
 {
   "abc": "hello_world",
+  "instruments": ["virt_instr"],
   "tests": [
     [
       "abc",
