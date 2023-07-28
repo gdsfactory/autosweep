@@ -15,6 +15,16 @@ class TestExec:
     The TestExec is used to execute a series of tests over a device. More specifically, it uses a recipe and a station
     configuration to run setup instruments, take and analyze data and produce reports.
 
+    :param dut_info: The information related to the device-under-test
+    :type dut_info: ta.utils.data_types.metadata.DUTInfo
+    :param recipe: A collection of tests with parameters to execute
+    :type recipe: ta.utils.data_types.recipe.Recipe
+    :param station_config: A collection of instrument configurations specific to a certain instrument
+    :type station_config: ta.utils.data_types.station_config.StationConfig
+    :param reanalyze: When 'True', it is possible to re-analyze previously acquired test data
+    :type reanalyze: bool, default False
+    :param path: When 'reanalyze=True', this argument points to the data folder where the run is
+    :type path: str or pathlib.Path, optional
     """
 
     def __init__(self,
@@ -23,20 +33,6 @@ class TestExec:
                  station_config: 'data_types.station_config.StationConfig',
                  reanalyze: bool = False,
                  path: typing_ext.PathLike | None = None):
-
-        """
-
-        :param dut_info: The information related to the device-under-test
-        :type dut_info: ta.utils.data_types.metadata.DUTInfo
-        :param recipe: A collection of tests with parameters to execute
-        :type recipe: ta.utils.data_types.recipe.Recipe
-        :param station_config: A collection of instrument configurations specific to a certain instrument
-        :type station_config: ta.utils.data_types.station_config.StationConfig
-        :param reanalyze: When 'True', it is possible to re-analyze previously acquired test data
-        :type reanalyze: bool, default False
-        :param path: When 'reanalyze=True', this argument points to the data folder where the run is
-        :type path: str or pathlib.Path, optional
-        """
 
         self.logger = logging.getLogger(self.__class__.__name__)
 

@@ -11,18 +11,15 @@ class Sweep(filereader.GeneralIOClass):
     A class used to manipulate test data, usually taken as a sweep (IV, laser power meter, etc.). Simplifies handling
     metadta, units and import/export.
 
+    :param traces: The collection of data from the sweep, in ch-name (key) - values (value) pairs.
+    :type traces: dict
+    :param attrs: The collection of trace attributes, with the same channel names as the traces
+    :type attrs: dict, optional
+    :param metadata: Any additional metadata specific to this sweep
+    :type metadata: dict, optional
     """
 
     def __init__(self, traces: dict, attrs: dict | None = None, metadata: dict | None = None):
-        """
-
-        :param traces: The collection of data from the sweep, in ch-name (key) - values (value) pairs.
-        :type traces: dict
-        :param attrs: The collection of trace attributes, with the same channel names as the traces
-        :type attrs: dict, optional
-        :param metadata: Any additional metadata specific to this sweep
-        :type metadata: dict, optional
-        """
         self.logger = logging.getLogger(self.__class__.__name__)
 
         # checks on input types and shapes
