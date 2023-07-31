@@ -23,8 +23,7 @@ def find_last_run(path: typing_ext.PathLike) -> Path:
             status_path = run / 'status.json'
             if status_path.exists():
                 status = io.read_json(path=status_path)
-                timestamp_strs = status.get('timestamp')
-                if timestamp_strs:
+                if timestamp_strs := status.get('timestamp'):
                     ts = metadata.TimeStamp(timestamp=timestamp_strs['start'])
                     timestamps.append(ts)
                     runs.append(run)

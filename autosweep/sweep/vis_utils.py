@@ -30,10 +30,7 @@ class FigHandler:
         :rtype: matplotlib.axes.Axes
         """
         if isinstance(self.axes, np.ndarray):
-            if self.axes.ndim == 1:
-                return self.axes[0]
-            else:
-                return self.axes[0, 0]
+            return self.axes[0] if self.axes.ndim == 1 else self.axes[0, 0]
         else:
             return self.axes
 
