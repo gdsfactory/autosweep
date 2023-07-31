@@ -119,9 +119,7 @@ def gen_reports(test_exec: 'TestExec') -> None:
     # write the CSV
     specs = []
     for name, results in test_exec.test_results.specs.items():
-        for result in results:
-            specs.append(result)
-
+        specs.extend(iter(results))
     if specs:
         io.write_csv(data=specs, path=test_exec.run_path / 'specs.csv')
     else:
@@ -131,16 +129,13 @@ def gen_reports(test_exec: 'TestExec') -> None:
     for name, result in test_exec.test_results.entries.items():
         entry = {'name': name}
 
-        specs = test_exec.test_results.specs.get(name)
-        if specs:
+        if specs := test_exec.test_results.specs.get(name):
             entry['specs'] = specs
 
-        fig_hdlr = result.get('fig')
-        if fig_hdlr:
+        if fig_hdlr := result.get('fig'):
             entry['fig'] = fig_hdlr.to_base64()
 
-        info = result.get('info')
-        if info:
+        if info := result.get('info'):
             entry['info'] = parse_info(info)
 
         entries.append(entry)

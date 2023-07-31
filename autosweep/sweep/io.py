@@ -16,10 +16,10 @@ def read_json(path: typing_ext.PathLike):
 
     dut = md.DUTInfo.from_dict(data=data['dut_info'])
 
-    sweeps = {}
-    for n, d in data['sweeps'].items():
-        sweeps[n] = sweep_parser.Sweep.from_dict(data=d)
-
+    sweeps = {
+        n: sweep_parser.Sweep.from_dict(data=d)
+        for n, d in data['sweeps'].items()
+    }
     return sweeps, data['metadata'], dut
 
 

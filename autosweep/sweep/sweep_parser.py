@@ -40,9 +40,9 @@ class Sweep(filereader.GeneralIOClass):
         self._traces = {k: np.array(v) for k, v in traces.items()}
 
         t_keys = tuple(self._traces.keys())
-        self._aliases = {'x': t_keys[0], 'y': t_keys[1]}
-        self._aliases.update({f'y{ii}': k for ii, k in enumerate(t_keys[1:])})
-
+        self._aliases = {'x': t_keys[0], 'y': t_keys[1]} | {
+            f'y{ii}': k for ii, k in enumerate(t_keys[1:])
+        }
         self._ranges = {}
         self._len = len(self['x'])
         self._col_num = len(self._traces)
@@ -52,7 +52,7 @@ class Sweep(filereader.GeneralIOClass):
             # double check that every column has the same length
             if len(v) != self._len:
                 msg = f"Trace '{k}' does not have the same length as the x-trace. Every trace must have the same " \
-                      f"length."
+                          f"length."
                 raise ValueError(msg)
 
         self.metadata = metadata if metadata else {}
@@ -73,9 +73,7 @@ class Sweep(filereader.GeneralIOClass):
         return self.__repr__()
 
     def __repr__(self) -> str:
-        msg = f"<{self.__module__}.{self.__class__.__name__}, " \
-               f"x-col: {self.x_col}, y-cols: {self.y_cols}, len: {len(self)}>"
-        return msg
+        return f"<{self.__module__}.{self.__class__.__name__}, x-col: {self.x_col}, y-cols: {self.y_cols}, len: {len(self)}>"
 
     def __len__(self) -> int:
         """
@@ -193,11 +191,7 @@ class Sweep(filereader.GeneralIOClass):
             if use_generic_names:
                 k = keys[k]
 
-            if len(v) == 2:
-                labels[k] = f"{v[0]} ({v[1]})"
-            else:
-                labels[k] = v[0]
-
+            labels[k] = f"{v[0]} ({v[1]})" if len(v) == 2 else v[0]
         return labels
 
     def change_unit(self, col: str, coeff: float, unit: str | None = None, desc: str | None = None) -> None:
@@ -219,13 +213,10 @@ class Sweep(filereader.GeneralIOClass):
         self._traces[col] = coeff*self._traces[col]
 
         if self.attrs:
-            if not unit:
-                raise ValueError("The argument 'unit' must be defined for a Sweep with attrs")
-
-            if desc:
-                self._attrs[col] = (desc, unit)
+            if unit:
+                self._attrs[col] = (desc, unit) if desc else (self._attrs[col][0], unit)
             else:
-                self._attrs[col] = (self._attrs[col][0], unit)
+                raise ValueError("The argument 'unit' must be defined for a Sweep with attrs")
 
     def filter_range(self, x_min: float, x_max: float):
         """
@@ -241,15 +232,12 @@ class Sweep(filereader.GeneralIOClass):
         idx_min = ta_math.find_nearest_idx(array=self['x'], val=x_min)
         idx_max = ta_math.find_nearest_idx(array=self['x'], val=x_max)
 
-        traces = {}
-        for col, trace in self._traces.items():
-            traces[col] = trace[idx_min:idx_max]
-
-        s = Sweep(traces=traces,
-                  attrs=self.attrs if self.attrs else None,
-                  metadata=self.metadata if self.metadata else None)
-
-        return s
+        traces = {col: trace[idx_min:idx_max] for col, trace in self._traces.items()}
+        return Sweep(
+            traces=traces,
+            attrs=self.attrs if self.attrs else None,
+            metadata=self.metadata if self.metadata else None,
+        )
 
     # def find_x_intercept(self, val: float, y_col: str):
     #     y = self[self.get_trace_col(col=y_col)]
