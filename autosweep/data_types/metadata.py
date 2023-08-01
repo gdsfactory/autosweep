@@ -170,11 +170,11 @@ class DUTInfo:
         :rtype: dict
         """
 
-        out = {'part_num': self.part_num_obj.to_dict(),
-               'ser_num': self.ser_num_obj.to_dict(),
-               'attrs': self.attrs}
-
-        return out
+        return {
+            'part_num': self.part_num_obj.to_dict(),
+            'ser_num': self.ser_num_obj.to_dict(),
+            'attrs': self.attrs,
+        }
 
 
 @functools.total_ordering

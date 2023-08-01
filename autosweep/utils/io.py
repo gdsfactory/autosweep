@@ -40,8 +40,7 @@ def read_json(path: typing_ext.PathLike) -> dict:
     with open(path, 'r') as f:
         raw = f.read()
 
-    data = orjson.loads(raw)
-    return data
+    return orjson.loads(raw)
 
 
 def write_json(data: dict, path: typing_ext.PathLike) -> None:

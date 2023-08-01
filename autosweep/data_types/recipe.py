@@ -19,10 +19,7 @@ class Recipe(filereader.FileWRer):
         return cls(recipe=data)
 
     def __eq__(self, other):
-        if isinstance(other, Recipe):
-            return self.recipe == other.recipe
-        else:
-            return False
+        return self.recipe == other.recipe if isinstance(other, Recipe) else False
 
     @property
     def instruments(self) -> tuple[str]:

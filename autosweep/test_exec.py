@@ -105,7 +105,7 @@ class TestExec:
         for name, params in self.recipe.tests():
             self.run_recipe_step(name=name, params=params)
 
-        self.logger.info(f"::: Done ---+---+---+--->>")
+        self.logger.info("::: Done ---+---+---+--->>")
 
     def run_recipe_step(self, name: str, params: dict) -> None:
         """

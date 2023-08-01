@@ -46,30 +46,29 @@ class InstrumentManager:
 
         if instr_name in self._instrs:
             return self._instrs[instr_name]
-        else:
-            instr_params = dict(self.station_config.instruments[instr_name])
+        instr_params = dict(self.station_config.instruments[instr_name])
 
-            obj = self.instr_classes[instr_params.pop('class')]
-            self.logger.info(f"[{instr_name}] Initializing .....")
+        obj = self.instr_classes[instr_params.pop('class')]
+        self.logger.info(f"[{instr_name}] Initializing .....")
 
-            sig = inspect.signature(obj)
-            for par in instr_params:
-                if par not in sig.parameters:
-                    msg = f"For the instrument instance name '{instr_name}', the key '{par}' is not defined and " \
+        sig = inspect.signature(obj)
+        for par in instr_params:
+            if par not in sig.parameters:
+                msg = f"For the instrument instance name '{instr_name}', the key '{par}' is not defined and " \
                           f"should be removed"
+                raise ValueError(msg)
+
+        for par, val in sig.parameters.items():
+            if par not in instr_params:
+                if val.default == inspect.Signature.empty:
+                    msg = f"For the instrument instance name '{instr_name}', a value for the key '{par}' must " \
+                              f"be defined"
                     raise ValueError(msg)
 
-            for par, val in sig.parameters.items():
-                if val.default == inspect.Signature.empty:
-                    if par not in instr_params:
-                        msg = f"For the instrument instance name '{instr_name}', a value for the key '{par}' must " \
-                              f"be defined"
-                        raise ValueError(msg)
-
-            instr = obj(**instr_params)
-            self.logger.info(f"[{instr_name}] {instr.idn}")
-            self._instrs[instr_name] = instr
-            return instr
+        instr = obj(**instr_params)
+        self.logger.info(f"[{instr_name}] {instr.idn}")
+        self._instrs[instr_name] = instr
+        return instr
 
     def load_instruments(self, instr_names: list[str] | tuple[str]) -> None:
         """
@@ -85,9 +84,8 @@ class InstrumentManager:
                 instr_names = self.station_config.instruments.keys()
             else:
                 raise ValueError(f"instr_names value '{instr_names}' is not supported")
-        else:
-            if not all((n_ in self.station_config.instruments for n_ in instr_names)):
-                raise ValueError("One of the instruments is not in the station config")
+        elif any(n_ not in self.station_config.instruments for n_ in instr_names):
+            raise ValueError("One of the instruments is not in the station config")
 
         for instr_name in instr_names:
             self.load_instrument(instr_name=instr_name)
