@@ -124,7 +124,7 @@ class TestExec:
         test_path.mkdir(exist_ok=True)
 
         test_instance = self.test_classes[test_class](dut_info=self.dut_info, results=self.test_results,
-                                                      save_path=test_path)
+                                                      save_path=test_path, **params['init'])
 
         # Don't acquire data if doing re-analysis
         if not self.reanalyze:

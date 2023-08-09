@@ -11,6 +11,14 @@
     "new_instr": {
       "class": "NewInstr",
       "com": null
+    },
+    "laser": {
+      "class": "Keysight8164B",
+      "addrs": "TCPIP::192.168.111.241::INSTR"
+    },
+    "opt_pm": {
+      "class": "KeysightN7745C",
+      "addrs": "TCPIP::192.168.111.60::INSTR"
     }
   }
 }

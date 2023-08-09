@@ -7,12 +7,14 @@ from autosweep.data_types.metadata import PN, SN, DUTInfo
 from autosweep.instruments.instrument_manager import InstrumentManager
 from autosweep import sweep
 from autosweep import instruments
+from autosweep.instruments import optical
 from autosweep import tests
 from autosweep.test_exec import TestExec
 
 from autosweep.utils.params import version as __version__
 
 register_classes(instruments)
+register_classes(optical)
 register_classes(tests)
 
 __all__ = ['init_logger', 'register_classes', 'Recipe', 'StationConfig',

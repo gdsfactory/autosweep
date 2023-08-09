@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-install_requires = ['numpy', 'matplotlib', 'orjson', 'jinja2']
+install_requires = ['numpy', 'matplotlib', 'orjson', 'jinja2', 'pyvisa']
 extras_require = {'dev': ['ipython', 'sphinx']}
 
 setup(name='AutoSweep',

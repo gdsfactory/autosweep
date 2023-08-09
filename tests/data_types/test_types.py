@@ -30,7 +30,7 @@ logging.info(f"{ts1 = }")
 logging.info(f"{ts1}")
 assert ts1 == ts, "Timestamps should match"
 
-r = Recipe.read_json('../recipe.json')
+r = Recipe.read_json('recipe.json')
 r.to_json('recipe_2.json')
 for n, t in r.tests():
     logging.info(f"{n}: {t}")

@@ -34,3 +34,21 @@ def find_3_idxs(array: typing_ext.ListLike, val: float) -> tuple[int, int] | tup
         return idx-1, idx
     else:
         return idx-1, idx, idx+1
+
+
+def get_grid(start: float, stop: float, step: float) -> np.ndarray:
+    """
+    Don't use np.arange for non-integer step sizes, use this instead. In cases where the step does not fit inside the
+    interval, the result step is only approximate.
+
+    :param start: The first value of the array
+    :type start: float
+    :param stop: The final value of the array
+    :type stop: float
+    :param step: The step size between elements in the array. Negative values are ignored.
+    :type step: float
+    :return: The array
+    :rtype: np.ndarray
+    """
+
+    return np.linspace(start, stop, int(np.abs(np.abs(start-stop) / step)))

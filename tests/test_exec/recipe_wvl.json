@@ -1,0 +1,21 @@
+{
+  "abc": "hello_world",
+  "instruments": ["virt_instr"],
+  "tests": [
+    [
+      "wvl_sweep",
+      {
+        "class": "WvlSweep",
+        "init": {},
+        "acquire": {
+          "wvl_start": 1530,
+          "wvl_stop": 1580,
+          "dwvl": 0.05
+        },
+        "analysis": {
+          "report_headings": ["Wavelength Sweep"]
+        }
+      }
+    ]
+  ]
+}

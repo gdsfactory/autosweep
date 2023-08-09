@@ -11,3 +11,6 @@ class BaseCOM:
 
     def query(self) -> None:
         raise NotImplementedError
+
+    def close(self) -> None:
+        raise NotImplementedError

@@ -7,6 +7,7 @@ from autosweep.sweep import sweep_parser
 def read_json(path: typing_ext.PathLike):
     """
     With raw data saved in JSON form, this function parses the data
+
     :param path: The path to the JSON file which contains the data
     :type path: str or pathlib.Path
     :return: Three items are returned. 1) A dictionary of the Sweep objects contained in the file. 2) A dictionary of
