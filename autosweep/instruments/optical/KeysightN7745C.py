@@ -6,7 +6,7 @@ from autosweep.instruments.coms import visa_coms
 
 class KeysightN7745C(abs_instr.AbsInstrument):
     """
-    Driver written by Helge Gehring, modified to work with AutoSweep. 
+    Driver written by Helge Gehring, modified to work with AutoSweep.
 
     :param addrs: The VISA-resource string for this instrument
     :type addrs: str
@@ -14,12 +14,12 @@ class KeysightN7745C(abs_instr.AbsInstrument):
 
     def __init__(self, addrs: str):
         super().__init__(com=visa_coms.VisaCOM(addrs=addrs))
-        
+
     def idn_ask(self):
-        return self.com.query('*IDN?')
+        return self.com.query('*IDN?').strip()
 
     def system_error_ask(self):
-        return self.com.query(":system:error?")
+        return self.com.query(":system:error?").strip()
 
     def fetch_power_ask(self, n):
         """
@@ -134,7 +134,7 @@ class KeysightN7745C(abs_instr.AbsInstrument):
             COMPLETE Data acquisition function is complete
         """
 
-        return self.com.query(f'sense{n}:function:state?')
+        return self.com.query(f'sense{n}:function:state?').strip()
 
     def trigger_input(self, n, trigger_response):
         """
@@ -172,27 +172,28 @@ if __name__ == '__main__':
 
     rm = pyvisa.ResourceManager()
 
-    detector = KeysightN7745C(rm.open_resource('TCPIP::192.168.111.144::INSTR'))
+    detector = KeysightN7745C('TCPIP::192.168.111.70::INSTR')
+    print(detector.idn_ask())
 
-    detector.sense_function_state(1, 'stop')
-    detector.trigger_input(1, 'ignore')
-    detector.initiate_channel_continuous(1, None, True)
-    detector.sense_power_range(-20)
+    if 0:
+        detector.sense_function_state(1, 'stop')
+        detector.trigger_input(1, 'ignore')
+        detector.initiate_channel_continuous(1, None, True)
+        detector.sense_power_range(-20)
 
-    exit()
+    if 0:
+        detector.sense_function_state(1, 'logging,stop')
+        detector.trigger_input(1, 'Cmeasure')
+        detector.sense_function_parameter_logging(0, 10000, f'{(1650 - 1450) / 20 / 10000}')
+        detector.sense_function_state(1, 'logging,start')
 
-    detector.sense_function_state(1, 'logging,stop')
-    detector.trigger_input(1, 'Cmeasure')
-    detector.sense_function_parameter_logging(0, 10000, f'{(1650 - 1450) / 20 / 10000}')
-    detector.sense_function_state(1, 'logging,start')
+        while 'PROGRESS' in detector.sense_function_state_ask(1):
+            print(detector.sense_function_state_ask(1))
+            time.sleep(.5)
 
-    while 'PROGRESS' in detector.sense_function_state_ask(1):
-        print(detector.sense_function_state_ask(1))
-        time.sleep(.5)
+        data = detector.sense_function_result_ask()
 
-    data = detector.sense_function_result_ask()
+        import matplotlib.pyplot as plt
 
-    import matplotlib.pyplot as plt
-
-    plt.plot(data)
-    plt.show()
+        plt.plot(data)
+        plt.show()
