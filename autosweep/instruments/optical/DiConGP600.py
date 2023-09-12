@@ -34,13 +34,13 @@ class DiConGP600X1(abs_instr.AbsInstrument):
         return self._outputs
 
     def idn_ask(self):
-        return self.com.query('*IDN?')
+        return self.com.query('*IDN?').strip()
 
     def version_ask(self):
-        return self.com.query('VER?')
+        return self.com.query('VER?').strip()
 
     def system_configuration_ask(self):
-        return self.com.query('SYST:CONF?')
+        return self.com.query('SYST:CONF?').strip()
 
     def idn_ask_dict(self):
         vendor, model,serial,version = self.idn_ask().split(",")
@@ -67,7 +67,7 @@ class DiConGP600X1(abs_instr.AbsInstrument):
     def system_error_ask(self):
         # for some reason it doesn't like the :
         # return self.com.query(":SYST:ERR?")
-        return self.com.query("SYST:ERR?")
+        return self.com.query("SYST:ERR?").strip()
 
     def clear_errors(self):
         while True:
@@ -95,6 +95,12 @@ class DiConGP600X1(abs_instr.AbsInstrument):
         if errors:
             assert 0, "Encountered errors: %s" % (errors,)
 
+    def reset(self):
+        """
+        Disconnect all fibers
+        """
+        self.com.write("RESET")
+
     def wen(self, val):
         """
         Enables or disables the auto save state feature
@@ -114,6 +120,10 @@ class DiConGP600X1(abs_instr.AbsInstrument):
         assert 1 <= input <= self._inputs
         assert 0 <= output <= self._outputs
         self.com.write(f"X1 CH {input} {output}")
+
+    def channels(self, vals):
+        for input, output in vals:
+            self.channel(input, output)
 
     def channel_ask(self, input):
         """
@@ -137,40 +147,50 @@ class DiConGP600X1(abs_instr.AbsInstrument):
         """
         return [float(x) for x in self.com.query("X1 WAVESAVAIL?").split(",")]
 
+    def wavelength(self, val):
+        """
+        Sets the 3D matrix switch’s active wavelength
+        """
+        self.com.write(f"X1 W {val}")
+
+    def wavelength_ask(self):
+        """
+        Queries the 3D matrix switch’s current working wavelength
+        Improves mirror steering / will reduce losses
+        """
+        return float(self.com.query("X1 W?"))
+
     # didn't implement inc / dec commands
     # not how we are using this
 
-def dump_state(switch):
-    print("IDN", switch.idn_ask())
-    # same info as in IDN
-    # print("Firmware version", switch.version_ask())
-    print("CONF", switch.system_configuration_ask())
-    print("X1")
-    print("  Dimensions", switch.dimensions_ask())
-    print("  Wavelengths", switch.wavelengths_availible_ask())
-    inputs = switch.get_inputs()
-    outputs = switch.get_outputs()
-    print(f"  Channels ({inputs} inputs x {outputs} outputs)")
-    for input in range(1, inputs + 1, 1):
-        output = switch.channel_ask(input)
-        print(f"       Input {input} => output {output}")
+    def print_state(self):
+        print("DiConGP600 state")
+        print("  IDN", self.idn_ask())
+        # same info as in IDN
+        # print("Firmware version", switch.version_ask())
+        print("  CONF", self.system_configuration_ask())
+        print("  X1")
+        print("    Dimensions", self.dimensions_ask())
+        print("    Wavelengths", self.wavelengths_availible_ask())
+        inputs = self.get_inputs()
+        outputs = self.get_outputs()
+        print(f"    Channels ({inputs} inputs x {outputs} outputs)")
+        for input in range(1, inputs + 1, 1):
+            output = self.channel_ask(input)
+            print(f"         Input {input} => output {output}")
 
 if __name__ == '__main__':
-    import pyvisa
-
-    rm = pyvisa.ResourceManager()
-
     """
     "For INSTR, this requires a device that supports the T&M standard LAN instrument protocol"
     """
     switch = DiConGP600X1('TCPIP0::192.168.111.187::10001::SOCKET')
     print("Connect ok")
-    dump_state(switch)
+    switch.print_state()
     if 0:
         switch.com.write("RESET")
         switch.com.write(":RESET")
         switch.clear_errors()
-        dump_state(switch)
+    switch.print_state()
 
     print("")
     print("")
@@ -178,8 +198,9 @@ if __name__ == '__main__':
 
     try:
         if 1:
-            dump_state(switch)
+            switch.print_state()
             switch.channel(1, 2)
-            dump_state(switch)
+            switch.reset()
+            switch.print_state()
     finally:
         switch.print_if_errors()
