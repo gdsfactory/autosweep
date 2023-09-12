@@ -11,11 +11,11 @@ Wavelength resolution 0.1 pm (17.5 MHz at 1310 nm, 14.3 MHz at 1450 nm, 12.5 MHz
 """
 from autosweep.instruments import abs_instr
 from autosweep.instruments.coms import visa_coms
-
+import time
 
 class KeysightN777C(abs_instr.AbsInstrument):
     """
-    Driver written by Helge Gehring, modified to work with AutoSweep.
+    Driver written by John McMaster
 
     :param addrs: The VISA-resource string for this instrument
     :type addrs: str
@@ -28,9 +28,17 @@ class KeysightN777C(abs_instr.AbsInstrument):
             raise ValueError(f"Unexpected model {model}")
         self.clear_errors()
         self.assert_errors()
+        self._min_nm = self.source_wavelength_ask_nm("MIN")
+        self._max_nm = self.source_wavelength_ask_nm("MAX")
+
+    def get_min_nm(self):
+        return self._min_nm
+
+    def get_max_nm(self):
+        return self._max_nm
 
     def idn_ask(self):
-        return self.com.query('*IDN?')
+        return self.com.query('*IDN?').strip()
 
     def idn_ask_dict(self):
         vendor, model,serial,version = self.idn_ask().split(",")
@@ -39,17 +47,17 @@ class KeysightN777C(abs_instr.AbsInstrument):
         IDN Keysight Technologies,N7778C,DE59800324,V2.022
         """
         return {
-            "vendor": vendor,
-            "model": model,
-            "serial": serial,
-            "version": version,
+            "vendor": vendor.strip(),
+            "model": model.strip(),
+            "serial": serial.strip(),
+            "version": version.strip(),
         }
 
     def model(self):
         return self.idn_ask_dict()["model"]
 
     def system_error_ask(self):
-        return self.com.query(":system:error?")
+        return self.com.query(":system:error?").strip()
 
     def clear_errors(self):
         while True:
@@ -82,7 +90,8 @@ class KeysightN777C(abs_instr.AbsInstrument):
         # FIXME: how to query from the instrument?
         # got current as 1310
         # Website lists acceptable wavelenghts as: 1240-1380 nm or 1340-1495 nm or 1450-1650 nm or 1490-1640 nm
-        assert 1240 <= val <= 1380, val
+        # assert 1240 <= val <= 1380, val
+        assert self._min_nm <= val <= self._max_nm, f"Require {self._min_nm} <= {val} <= {self._max_nm}"
 
     def source_wavelength_nm(self, val):
         """
@@ -259,6 +268,64 @@ class KeysightN777C(abs_instr.AbsInstrument):
         """
         self.com.write(":sour0:sour0:wav:swe:soft")
         
+    def sweep_abort_if_running(self):
+        """
+        Stop any active sweeps
+        """
+        state = self.source_wavelength_sweep_state_ask_str()
+        if state != "NOT_RUNNING":
+            self.source_wavelength_sweep_state("STOP")
+            state = self.source_wavelength_sweep_state_ask_str()
+            assert state == "NOT_RUNNING"
+
+    def sweep_full_range(self):
+        # FIXME: why is there a delta on this?
+        self.source_wavelength_sweep_start_nm(self.source_wavelength_ask_nm("MIN") + 5)
+        self.source_wavelength_sweep_stop_nm(self.source_wavelength_ask_nm("MAX") - 5)
+
+    def sweep_continuous_start(self,
+                   power_mw=None,
+                   # Set either start/stop or full_range
+                   start_nm=None, stop_nm=None, rull_range=None,
+                   speed_nms=None,
+                    ):
+        self.sweep_abort_if_running()
+        self.source_wavelength_sweep_mode("CONT")
+        if power_mw:
+            self.source_power_mw(power_mw)
+        if speed_nms:
+            self.source_wavelength_sweep_speed_nms(speed_nms)
+
+        self.assert_errors()
+        # Range setup
+        if start_nm:
+            self.source_wavelength_sweep_start_nm(start_nm)
+        if stop_nm:
+            self.source_wavelength_sweep_start_nm(start_nm)
+        if rull_range:
+            self.sweep_full_range()
+        self.assert_errors()
+
+        # Now that everything should be configured verify configuration
+        self.source_wavelength_sweep_ask_assert()
+
+        # Unlock and turn on laser
+        self.lock(False)
+        self.source_power_state(True)
+
+        # General error sweep
+        self.assert_errors()
+
+        print("Sweep, continuous: starting")
+        self.source_wavelength_sweep_state("START")
+
+
+    def sweep_wait_done(self):
+        while True:
+            state = self.source_wavelength_sweep_state_ask_str()
+            if state == "NOT_RUNNING":
+                break
+            time.sleep(1.0)
 
     def trigger_configuration(self, val):
         """
@@ -355,22 +422,24 @@ class KeysightN777C(abs_instr.AbsInstrument):
         """
         return int(self.com.query(":stat:oper:cond?"))
 
-def dump_state(laser):
-    print("IDN", laser.idn_ask())
-    print("Laser")
-    print("  Lock", laser.lock_ask())
-    print("  Is on", laser.source_power_state_ask())
-    print("  Wavelength")
-    print("    Current: %0.3f nm" % laser.source_wavelength_ask_nm())
-    print("    Min: %0.3f nm" % laser.source_wavelength_ask_nm("MIN"))
-    print("    Max: %0.3f nm" % laser.source_wavelength_ask_nm("MAX"))
-    print("  Power", laser.source_power_ask())
-    print("  Power units", laser.source_power_unit_ask_str())
-    print("  Power", laser.source_power_ask_mw(), "mW")
-    print("Status")
-    print("  OSSER:", laser.get_OSSER())
-    print("  OSEM:", laser.get_OSESM())
-    print("  OSCSR:", laser.get_OSCSR())
+    def dump_state(self, status=False):
+        print("KeysightN777-C state")
+        print("  IDN", self.idn_ask())
+        print("  Lock", self.lock_ask())
+        print("  Is on", self.source_power_state_ask())
+        print("  Wavelength")
+        print("    Current: %0.3f nm" % self.source_wavelength_ask_nm())
+        print("    Min: %0.3f nm" % self.source_wavelength_ask_nm("MIN"))
+        print("    Max: %0.3f nm" % self.source_wavelength_ask_nm("MAX"))
+        print("  Power", self.source_power_ask())
+        print("  Power units", self.source_power_unit_ask_str())
+        print("  Power", self.source_power_ask_mw(), "mW")
+        # Advanced usage
+        if status:
+            print("Status")
+            print("  OSSER:", self.get_OSSER())
+            print("  OSEM:", self.get_OSESM())
+            print("  OSCSR:", self.get_OSCSR())
 
 if __name__ == '__main__':
     import pyvisa
@@ -378,12 +447,13 @@ if __name__ == '__main__':
 
     rm = pyvisa.ResourceManager()
 
-    laser = KeysightN777C('TCPIP::192.168.111.72::INSTR')
     # Insufficient location information or the requested device or resource is not present in the system.
     # laser = KeysightN777C('TCPIP0::K-N7x778C-00324::inst0::INSTR')
+    # fallback to IP address
+    laser = KeysightN777C('TCPIP::192.168.111.72::INSTR')
 
     try:
-        dump_state(laser)
+        laser.dump_state()
         
 
         if 0:
@@ -429,7 +499,7 @@ if __name__ == '__main__':
             laser.source_power_state(True)
 
             print("")
-            dump_state(laser)
+        laser.dump_state()
 
         # sweep test: step
         if 0:
@@ -483,7 +553,7 @@ if __name__ == '__main__':
                 time.sleep(1.0)
 
         # sweep test: continuous
-        if 1:
+        if 0:
             """
             :sour0:wav:swe:cycl 3
             set coherence?
@@ -494,12 +564,7 @@ if __name__ == '__main__':
             5000 steps suggested => 0.028 step size
             """
 
-            # If an old sweep is running stop it before changing settings
-            state = laser.source_wavelength_sweep_state_ask_str()
-            if state != "NOT_RUNNING":
-                laser.source_wavelength_sweep_state("STOP")
-                state = laser.source_wavelength_sweep_state_ask_str()
-                assert state == "NOT_RUNNING"
+            laser.sweep_abort_if_running()
 
             # trigger out at start of sweep
             laser.trigger_configuration("DEFAULT")
