@@ -26,7 +26,7 @@ class DiConGP600X1(abs_instr.AbsInstrument):
             raise ValueError("Only X1 configuration supported")
         self._configuration = "X1"
         self._inputs, self._outputs = self.dimensions_ask()
-        
+
     def get_inputs(self):
         return self._inputs
 
@@ -63,7 +63,7 @@ class DiConGP600X1(abs_instr.AbsInstrument):
     doesn't return anything...
     but our code is perfect so we don't need it!
     """
-    
+
     def system_error_ask(self):
         # for some reason it doesn't like the :
         # return self.com.query(":SYST:ERR?")
@@ -99,7 +99,12 @@ class DiConGP600X1(abs_instr.AbsInstrument):
         """
         Disconnect all fibers
         """
+        self.clear_errors()
         self.com.write("RESET")
+        self.assert_errors()
+        # 2023-09-12: unreliable commands, be extra careful until issue is understood
+        # somehow clearing errors seems to help?
+        self.assert_idle()
 
     def wen(self, val):
         """
@@ -114,12 +119,18 @@ class DiConGP600X1(abs_instr.AbsInstrument):
     def channel(self, input, output):
         """
         Selects the 3D matrix switch channel
-        Connecting an input channel to output channel 0 will switch that input to the off 
+        Connecting an input channel to output channel 0 will switch that input to the off
         position
         """
         assert 1 <= input <= self._inputs
         assert 0 <= output <= self._outputs
-        self.com.write(f"X1 CH {input} {output}")
+        out = f"X1 CH {input} {output}"
+        self.clear_errors()
+        self.com.write(out)
+        self.assert_errors()
+
+        # 2023-09-12: unreliable commands, be extra careful until issue is understood
+        self.assert_channel(input, output)
 
     def channels(self, vals):
         for input, output in vals:
@@ -135,6 +146,15 @@ class DiConGP600X1(abs_instr.AbsInstrument):
         ret_output = int(ret_output)
         assert ret_input == input
         return ret_output
+
+    def assert_channel(self, input, output):
+        output_got = self.channel_ask(input)
+        assert output == output_got, f"Channel {input}: expected {output} but got {output_got}"
+
+    def assert_idle(self):
+        for input in self.iter_inputs():
+            output = self.channel_ask(input)
+            assert output == 0, f"Channel {input}: expected 0 / idle but got {output}"
 
     def dimensions_ask(self):
         inputs, outputs = [int(x) for x in self.com.query("X1 DIM?").split(",")]
@@ -163,6 +183,9 @@ class DiConGP600X1(abs_instr.AbsInstrument):
     # didn't implement inc / dec commands
     # not how we are using this
 
+    def iter_inputs(self):
+        return range(1, self.get_inputs() + 1, 1)
+
     def print_state(self):
         print("DiConGP600 state")
         print("  IDN", self.idn_ask())
@@ -175,7 +198,7 @@ class DiConGP600X1(abs_instr.AbsInstrument):
         inputs = self.get_inputs()
         outputs = self.get_outputs()
         print(f"    Channels ({inputs} inputs x {outputs} outputs)")
-        for input in range(1, inputs + 1, 1):
+        for input in self.iter_inputs():
             output = self.channel_ask(input)
             print(f"         Input {input} => output {output}")
 
