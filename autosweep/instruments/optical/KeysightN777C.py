@@ -130,7 +130,7 @@ class KeysightN777C(abs_instr.AbsInstrument):
         """
         Syntax: :SOURce0:POWer:STATe<wsp><boolean>
         Switches the laser of the chosen source on or off.
-        
+
         Manual implies this is the same thing as the shutter
         NOTE: you can't call this even to disable when locked
         """
@@ -156,7 +156,7 @@ class KeysightN777C(abs_instr.AbsInstrument):
 
     def source_power_unit_ask(self):
         """
-        Return the current power units 
+        Return the current power units
 
         0: dBm
         1: Watts
@@ -258,6 +258,15 @@ class KeysightN777C(abs_instr.AbsInstrument):
             2: "PAUSED",
         }[val]
 
+    def source_wavelength_sweep_state_ask_is_idle(self):
+        return self.source_wavelength_sweep_state_ask_str() != "RUNNING"
+
+    def sweep_wait_done(self):
+        while True:
+            if self.source_wavelength_sweep_state_ask_is_idle():
+                break
+            time.sleep(0.1)
+
     def source_wavelength_sweep_softtrigger(self):
         """
          Softtrigger does the same as a normal (hardware) trigger at the backplane.
@@ -267,7 +276,7 @@ class KeysightN777C(abs_instr.AbsInstrument):
         - SoftTrigger
         """
         self.com.write(":sour0:sour0:wav:swe:soft")
-        
+
     def sweep_abort_if_running(self):
         """
         Stop any active sweeps
@@ -319,14 +328,6 @@ class KeysightN777C(abs_instr.AbsInstrument):
         print("Sweep, continuous: starting")
         self.source_wavelength_sweep_state("START")
 
-
-    def sweep_wait_done(self):
-        while True:
-            state = self.source_wavelength_sweep_state_ask_str()
-            if state == "NOT_RUNNING":
-                break
-            time.sleep(1.0)
-
     def trigger_configuration(self, val):
         """
         """
@@ -370,7 +371,7 @@ class KeysightN777C(abs_instr.AbsInstrument):
     Intention unclear. Maybe an event can trigger a write
 
     OSESM vs OSSEM?
-    
+
     Questionable Status Event Summary Register (QSESR)
     Questionable Status Enable Summary Mask (QSESM)
     """
@@ -418,7 +419,7 @@ class KeysightN777C(abs_instr.AbsInstrument):
 
     def get_OSCSR(self):
         """
-        Reads the Operational Status Condition Summary Register. 
+        Reads the Operational Status Condition Summary Register.
         """
         return int(self.com.query(":stat:oper:cond?"))
 
@@ -454,7 +455,7 @@ if __name__ == '__main__':
 
     try:
         laser.dump_state()
-        
+
 
         if 0:
             print("Check lock")
@@ -508,7 +509,7 @@ if __name__ == '__main__':
             set coherence?
                 N7778C and N7779C
                 not supported on N7776C
-            
+
             140 nm range
             5000 steps suggested => 0.028 step s
             ize
@@ -559,7 +560,7 @@ if __name__ == '__main__':
             set coherence?
                 N7778C and N7779C
                 not supported on N7776C
-            
+
             140 nm range
             5000 steps suggested => 0.028 step size
             """
