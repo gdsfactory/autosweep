@@ -134,12 +134,10 @@ class KeysightN7745C(abs_instr.AbsInstrument):
         example: :sens1:func:stat logg,star
 
         :return: the data array of the last data acquisition function.
+
+        pyvisa.errors.VisaIOError: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
+        This can happen when the measurement isn't ready / never triggered
         """
-        print("type check")
-        print(type(self.com))
-        print(dir(self.com))
-        print(type(self.com.com))
-        print(dir(self.com.com))
         result = np.array(self.com.com.query_binary_values(f':SENSE:FUNCTION:RESULT?', datatype='f', is_big_endian=False))
         self.com.read()
         return result
@@ -196,7 +194,7 @@ class KeysightN7745C(abs_instr.AbsInstrument):
         Generates a hardware trigger.
 
         val:
-        1 or NODEA: Is identical to a trigger at the Input Trigger Connector. 
+        1 or NODEA: Is identical to a trigger at the Input Trigger Connector.
         2 or NODEB: Generates trigger at the Output Trigger Connector.
         """
         val = str(val).upper()
@@ -227,7 +225,15 @@ class KeysightN7745C(abs_instr.AbsInstrument):
         assert trigger_response in ("SME", "SMEASURE", "CMEASURE", "CME", "MMEASURE", "MM")
         self.com.write(f':TRIGGER{n}:INPUT {trigger_response}')
 
-    def sense_power_range(self, range):
+    def sense_power_range_auto(self, n, val):
+        val = str(val).upper()
+        assert val in ("0", "OFF", "1", "ON")
+        self.com.write(f':SENSE{n}:POWER:RANGE:AUTO {val}')
+
+    def sense_power_range_auto_ask(self, n):
+        return int(self.com.query(f':SENSE{n}:POWER:RANGE:AUTO?'))
+
+    def sense_power_range_dbm(self, n, range):
         """
         Sets the power range for the channel.
         The range changes at 10 dBm intervals. The corresponding ranges for linear
@@ -236,8 +242,75 @@ class KeysightN7745C(abs_instr.AbsInstrument):
             The range as a float value in dBm. The number is rounded to the closest multiple of 10, because the range changes at 10
             dBm intervals. Units are in dBm.
         """
+        range = int(range)
+        # XXX: or could be tolerant to the rounding
+        assert range in (+10, 0, -10, -20, -30)
+        self.com.write(f':SENSE{n}:POWER:RANGE {range}dBm')
 
-        self.com.write(f':SENSE:POWER:RANGE {range}dBm')
+    def sense_power_range_ask(self, n):
+        """
+        NOTE: this is always dB even if units are W
+        """
+        self.assert_n(n)
+        return float(self.com.query(f':SENSE{n}:POWER:RANGE?').strip())
+
+    def sense_power_range_ask_w(self, n):
+        """
+        Range           Upper Linear Power Limit
+        +10 dBm         19.999 mW
+        0 dBm           1999.9 mW
+        -10 dBm         199.99 mW
+        -20 dBm         19.999 mW
+        -30 dBm         1999.9 nW
+        """
+        # returned as float, but is in clear 10 db increments
+        dbm = int(self.sense_power_range_ask(n))
+        return {
+            +10: 2e-2,
+            0: 2e-3,
+            -10: 2e-4,
+            -20: 2e-5,
+            -30: 2e-6,
+        }[dbm]
+
+    def sense_power_range_ask_mw(self, n):
+        return self.sense_power_range_ask_w(n) * 1e3
+
+    def sense_power_unit(self, n, val):
+        val = str(val).upper()
+        assert val in ("0", "DBM", "1", "WATT")
+        self.com.write(f':SENSE{n}:POWER:UNIT {val}')
+
+    def sense_power_unit_ask(self, n):
+        """
+        :SENSe[n][:CHANnel[m]]:POWer:UNIT?
+        """
+        return int(self.com.query(f':SENSE{n}:POWER:UNIT?'))
+
+    def sense_power_unit_ask_str(self, n):
+        return {
+            0: "dBm",
+            1: "Watt",
+        }[self.sense_power_unit_ask(n)]
+
+    def sense_power_gain_auto_ask(self, n):
+        """
+        • 0 = Auto Gain Off.
+        This is the position for best transient response.
+        • 1 = Auto Gain On (Default)
+        This is the Position for best dynamic.
+        """
+        return int(self.com.query(f':SENSE{n}:POWER:GAIN:AUTO?'))
+
+    def sense_power_wavelength_nm(self, val):
+        self.com.write(f':SENSE{n}:POWER:WAVELENGTH {val}NM')
+
+    def sense_power_wavelength_ask(self, n):
+        self.assert_n(n)
+        return float(self.com.query(f':SENSE{n}:POWER:WAVELENGTH?'))
+
+    def sense_power_wavelength_ask_nm(self, n):
+        return self.sense_power_wavelength_ask(n) * 1e9
 
 if __name__ == '__main__':
     import pyvisa
@@ -252,26 +325,38 @@ if __name__ == '__main__':
         detector.sense_function_state(1, 'STOP')
         detector.trigger_input(1, 'IGNORE')
         detector.initiate_channel_continuous(1, None, True)
-        detector.sense_power_range(-20)
+        detector.sense_power_range_dbm(-20)
 
     if 1:
         detector.clear_errors()
         detector.assert_errors()
 
+        # Diff around 200
+        nm_min = 1450
+        nm_max = 1650
+        nm_per_sec = 10
+        samples = 10000
+        total_seconds = (nm_max - nm_min) / nm_per_sec
+        tsample = total_seconds / samples
+        print(f"Desired sweep")
+        print(f"  Range: {nm_min} nm to {nm_max} nm")
+        print(f"  Samples {samples}")
+        print(f"  nm_per_sec {nm_per_sec}")
+        print(f"  total_seconds {total_seconds}")
+        print(f"  tsample {tsample}")
+
+
         n = 1
         detector.sense_function_state(n, 'LOGGING', 'STOP')
+        detector.sense_power_unit(n, "Watt")
         detector.trigger_input(n, 'CMEASURE')
+        detector.sense_power_range_auto(n, "OFF")
+        detector.sense_power_range_dbm(n, +10)
         """
         10000 points
         Sweep 1450 to 1650 nm
         50 ms / nm => Sweep 200 nm in 10 sec
         """
-        # FIXME: why was this 0 and not 1?
-        # detector.sense_function_parameter_logging(n, 10000, (1650 - 1450) / 20 / 10000)
-        tsample = (1650 - 1450) / 2000 / 10000
-        samples = 10000
-        total = tsample * samples
-        print(f"tsample {tsample}, samples {samples}, total {total}")
         # detector.sense_function_parameter_logging(0, samples, tsample)
         detector.sense_function_parameter_logging(1, samples, tsample)
         detector.sense_function_state(n, 'LOGGING', 'START')
@@ -283,10 +368,12 @@ if __name__ == '__main__':
         # while 'PROGRESS' == detector.sense_function_state_ask_state(n):
         while detector.sense_function_state_ask_is_running(n):
             print(detector.sense_function_state_ask(n))
-            time.sleep(0.5)
+            time.sleep(0.1)
 
+        print("done, getting data")
         data = detector.sense_function_result_ask()
 
+        print("plotting")
         import matplotlib.pyplot as plt
 
         plt.plot(data)
