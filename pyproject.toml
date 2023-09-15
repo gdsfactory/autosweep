@@ -63,7 +63,7 @@ line-length = 88
 target-version = ['py310']
 
 [tool.codespell]
-ignore-words-list = "te, te/tm, te, ba, fpr, fpr_spacing, ro, nd, donot, schem"
+ignore-words-list = "te, te/tm, te, ba, fpr, fpr_spacing, ro, nd, donot, schem, chec"
 
 [tool.commitizen]
 name = "cz_conventional_commits"
