@@ -5,6 +5,31 @@ API
 .. currentmodule:: autosweep
 
 *********************
+Data types
+*********************
+
+.. rubric:: data types
+.. currentmodule:: autosweep.data_types
+
+.. autosummary::
+   :toctree: _autosummary/
+
+   DUTInfo
+   FileWRer
+   GeneralIOClass
+   MetaNum
+   PN
+   Recipe
+   SN
+   StationConfig
+   TimeStamp
+   filereader
+   metadata
+   recipe
+   station_config
+
+
+*********************
 Instruments
 *********************
 
@@ -21,7 +46,9 @@ Classes and functions for construction and manipulation of geometric objects.
    VirtualInstrument
    VisaCOM
 
-
+*********************
+Sweep
+*********************
 
 .. currentmodule:: autosweep.sweep
 
@@ -32,4 +59,7 @@ Classes and functions for construction and manipulation of geometric objects.
 
    Sweep
    FigHandler
-   io
+   read_json
+   sweep_parser
+   to_json
+   vis_utils
