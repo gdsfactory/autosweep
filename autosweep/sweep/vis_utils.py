@@ -1,8 +1,9 @@
-import matplotlib.pyplot as plt
-import matplotlib
-import numpy as np
 import base64
 import io
+
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
 
 from autosweep.utils.typing_ext import PathLike
 
@@ -52,6 +53,6 @@ class FigHandler:
         """
         fig_str = io.BytesIO()
 
-        self.fig.savefig(fig_str, format='png')
+        self.fig.savefig(fig_str, format="png")
         fig_str.seek(0)
         return base64.b64encode(fig_str.read()).decode()

@@ -34,16 +34,16 @@ class DiConGP600X1(abs_instr.AbsInstrument):
         return self._outputs
 
     def idn_ask(self):
-        return self.com.query('*IDN?').strip()
+        return self.com.query("*IDN?").strip()
 
     def version_ask(self):
-        return self.com.query('VER?').strip()
+        return self.com.query("VER?").strip()
 
     def system_configuration_ask(self):
-        return self.com.query('SYST:CONF?').strip()
+        return self.com.query("SYST:CONF?").strip()
 
     def idn_ask_dict(self):
-        vendor, model,serial,version = self.idn_ask().split(",")
+        vendor, model, serial, version = self.idn_ask().split(",")
         """
         Example
         Dicon Fiberoptics Inc, GP600, 19A0M10D0117, 7.0
@@ -72,14 +72,14 @@ class DiConGP600X1(abs_instr.AbsInstrument):
     def clear_errors(self):
         while True:
             error = self.system_error_ask().strip()
-            if error == '+0, No Error':
+            if error == "+0, No Error":
                 break
 
     def print_if_errors(self):
         errors = []
         while True:
             error = self.system_error_ask().strip()
-            if error == '+0, No Error':
+            if error == "+0, No Error":
                 break
             errors.append(error)
         if errors:
@@ -89,11 +89,11 @@ class DiConGP600X1(abs_instr.AbsInstrument):
         errors = []
         while True:
             error = self.system_error_ask().strip()
-            if error == '+0, No Error':
+            if error == "+0, No Error":
                 break
             errors.append(error)
         if errors:
-            assert 0, "Encountered errors: %s" % (errors,)
+            assert 0, f"Encountered errors: {errors}"
 
     def reset(self):
         """
@@ -141,7 +141,9 @@ class DiConGP600X1(abs_instr.AbsInstrument):
         Get the output for corresponding input
         """
         assert 1 <= input <= self._inputs
-        ret_input, ret_output = [int(x) for x in self.com.query(f"X1 CH {input}?").split(",")]
+        ret_input, ret_output = (
+            int(x) for x in self.com.query(f"X1 CH {input}?").split(",")
+        )
         ret_input = int(ret_input)
         ret_output = int(ret_output)
         assert ret_input == input
@@ -149,7 +151,9 @@ class DiConGP600X1(abs_instr.AbsInstrument):
 
     def assert_channel(self, input, output):
         output_got = self.channel_ask(input)
-        assert output == output_got, f"Channel {input}: expected {output} but got {output_got}"
+        assert (
+            output == output_got
+        ), f"Channel {input}: expected {output} but got {output_got}"
 
     def assert_idle(self):
         for input in self.iter_inputs():
@@ -157,7 +161,7 @@ class DiConGP600X1(abs_instr.AbsInstrument):
             assert output == 0, f"Channel {input}: expected 0 / idle but got {output}"
 
     def dimensions_ask(self):
-        inputs, outputs = [int(x) for x in self.com.query("X1 DIM?").split(",")]
+        inputs, outputs = (int(x) for x in self.com.query("X1 DIM?").split(","))
         return inputs, outputs
 
     def wavelengths_availible_ask(self):
@@ -202,11 +206,12 @@ class DiConGP600X1(abs_instr.AbsInstrument):
             output = self.channel_ask(input)
             print(f"         Input {input} => output {output}")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     """
     "For INSTR, this requires a device that supports the T&M standard LAN instrument protocol"
     """
-    switch = DiConGP600X1('TCPIP0::192.168.111.187::10001::SOCKET')
+    switch = DiConGP600X1("TCPIP0::192.168.111.187::10001::SOCKET")
     print("Connect ok")
     switch.print_state()
     if 0:

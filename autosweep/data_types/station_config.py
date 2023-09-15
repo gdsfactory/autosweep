@@ -1,11 +1,9 @@
-from pathlib import Path
-import types
 import logging
+import types
+from pathlib import Path
 
 from autosweep.data_types import filereader
-from autosweep.utils import typing_ext
-from autosweep.utils import io
-from autosweep.utils import generics
+from autosweep.utils import generics, io, typing_ext
 
 
 class StationConfig(filereader.FileWRer):
@@ -24,7 +22,7 @@ class StationConfig(filereader.FileWRer):
         # returns a mappingproxytype so no inadvertent editing is possible
         self.station_config = generics.load_into_mappingproxytype(data=station_config)
 
-        self.base_path = Path(self.station_config['paths']['base'])
+        self.base_path = Path(self.station_config["paths"]["base"])
 
     @classmethod
     def from_dict(cls, data):
@@ -38,7 +36,7 @@ class StationConfig(filereader.FileWRer):
         :return: The path
         :rtype: pathlib.Path
         """
-        return self.base_path / self.station_config['paths']['data']
+        return self.base_path / self.station_config["paths"]["data"]
 
     @property
     def instruments(self) -> types.MappingProxyType:
@@ -48,7 +46,7 @@ class StationConfig(filereader.FileWRer):
         :return: The instrument details
         :rtype: types.MappingProxyType
         """
-        return self.station_config['instruments']
+        return self.station_config["instruments"]
 
     def to_json(self, path: typing_ext.PathLike):
         io.write_json(data=self.to_dict(), path=path)

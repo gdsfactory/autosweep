@@ -8,4 +8,5 @@ class NewTest(VirtualTest):
 
     This code demonstrates the simplest additional test.
     """
+
     pass

@@ -1,9 +1,9 @@
-import logging
 import inspect
+import logging
 
-from autosweep import data_types
-from autosweep.utils import registrar
+from autosweep.data_types import StationConfig
 from autosweep.instruments import abs_instr
+from autosweep.utils import registrar
 
 
 class InstrumentManager:
@@ -12,7 +12,7 @@ class InstrumentManager:
     The manager can also be used independently as part of a script, usually within it's context manager.
     """
 
-    def __init__(self, station_config: data_types.station_config.StationConfig):
+    def __init__(self, station_config: StationConfig):
         self.logger = logging.getLogger(self.__class__.__name__)
 
         self.station_config = station_config
@@ -48,21 +48,25 @@ class InstrumentManager:
             return self._instrs[instr_name]
         instr_params = dict(self.station_config.instruments[instr_name])
 
-        obj = self.instr_classes[instr_params.pop('class')]
+        obj = self.instr_classes[instr_params.pop("class")]
         self.logger.info(f"[{instr_name}] Initializing .....")
 
         sig = inspect.signature(obj)
         for par in instr_params:
             if par not in sig.parameters:
-                msg = f"For the instrument instance name '{instr_name}', the key '{par}' is not defined and " \
-                          f"should be removed"
+                msg = (
+                    f"For the instrument instance name '{instr_name}', the key '{par}' is not defined and "
+                    f"should be removed"
+                )
                 raise ValueError(msg)
 
         for par, val in sig.parameters.items():
             if par not in instr_params:
                 if val.default == inspect.Signature.empty:
-                    msg = f"For the instrument instance name '{instr_name}', a value for the key '{par}' must " \
-                              f"be defined"
+                    msg = (
+                        f"For the instrument instance name '{instr_name}', a value for the key '{par}' must "
+                        f"be defined"
+                    )
                     raise ValueError(msg)
 
         instr = obj(**instr_params)
@@ -80,7 +84,7 @@ class InstrumentManager:
         """
 
         if isinstance(instr_names, str):
-            if instr_names.lower() == 'all':
+            if instr_names.lower() == "all":
                 instr_names = self.station_config.instruments.keys()
             else:
                 raise ValueError(f"instr_names value '{instr_names}' is not supported")
@@ -96,6 +100,5 @@ class InstrumentManager:
 
         :return:
         """
-        for name, instr in self._instrs.items():
+        for _name, instr in self._instrs.items():
             instr.close()
-

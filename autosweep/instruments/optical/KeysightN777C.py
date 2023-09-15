@@ -9,9 +9,11 @@ Wavelength:
 
 Wavelength resolution 0.1 pm (17.5 MHz at 1310 nm, 14.3 MHz at 1450 nm, 12.5 MHz at 1550 nm)
 """
+import time
+
 from autosweep.instruments import abs_instr
 from autosweep.instruments.coms import visa_coms
-import time
+
 
 class KeysightN777C(abs_instr.AbsInstrument):
     """
@@ -38,10 +40,10 @@ class KeysightN777C(abs_instr.AbsInstrument):
         return self._max_nm
 
     def idn_ask(self):
-        return self.com.query('*IDN?').strip()
+        return self.com.query("*IDN?").strip()
 
     def idn_ask_dict(self):
-        vendor, model,serial,version = self.idn_ask().split(",")
+        vendor, model, serial, version = self.idn_ask().split(",")
         """
         Example
         IDN Keysight Technologies,N7778C,DE59800324,V2.022
@@ -83,15 +85,16 @@ class KeysightN777C(abs_instr.AbsInstrument):
                 break
             errors.append(error)
         if errors:
-            assert 0, "Encountered errors: %s" % (errors,)
-
+            assert 0, f"Encountered errors: {errors}"
 
     def validate_wavelength_nm(self, val):
         # FIXME: how to query from the instrument?
         # got current as 1310
-        # Website lists acceptable wavelenghts as: 1240-1380 nm or 1340-1495 nm or 1450-1650 nm or 1490-1640 nm
+        # Website lists acceptable wavelengths as: 1240-1380 nm or 1340-1495 nm or 1450-1650 nm or 1490-1640 nm
         # assert 1240 <= val <= 1380, val
-        assert self._min_nm <= val <= self._max_nm, f"Require {self._min_nm} <= {val} <= {self._max_nm}"
+        assert (
+            self._min_nm <= val <= self._max_nm
+        ), f"Require {self._min_nm} <= {val} <= {self._max_nm}"
 
     def source_wavelength_nm(self, val):
         """
@@ -178,16 +181,14 @@ class KeysightN777C(abs_instr.AbsInstrument):
         """
         Realigns the laser cavity
         """
-        self.com.write(f":sour0:wav:corr:ara")
+        self.com.write(":sour0:wav:corr:ara")
 
     def source_wavelength_sweep_ask(self):
-        """
-        """
+        """ """
         return self.com.query(":sour0:wav:swe:chec?").strip()
 
     def source_wavelength_sweep_ask_assert(self):
-        """
-        """
+        """ """
         res = self.source_wavelength_sweep_ask()
         if res != "0,OK":
             raise Exception("Bad sweep configuration")
@@ -242,7 +243,19 @@ class KeysightN777C(abs_instr.AbsInstrument):
 
     def source_wavelength_sweep_state(self, val):
         val = str(val).upper()
-        assert val in ("0", "STOP", "1", "START", "STAR", "2", "PAUSE", "PAUS", "3", "CONT", "CONTINUE")
+        assert val in (
+            "0",
+            "STOP",
+            "1",
+            "START",
+            "STAR",
+            "2",
+            "PAUSE",
+            "PAUS",
+            "3",
+            "CONT",
+            "CONTINUE",
+        )
         self.com.write(f":sour0:wav:swe {val}")
 
     def source_wavelength_sweep_state_ask(self):
@@ -292,12 +305,15 @@ class KeysightN777C(abs_instr.AbsInstrument):
         self.source_wavelength_sweep_start_nm(self.source_wavelength_ask_nm("MIN") + 5)
         self.source_wavelength_sweep_stop_nm(self.source_wavelength_ask_nm("MAX") - 5)
 
-    def sweep_continuous_start(self,
-                   power_mw=None,
-                   # Set either start/stop or full_range
-                   start_nm=None, stop_nm=None, rull_range=None,
-                   speed_nms=None,
-                    ):
+    def sweep_continuous_start(
+        self,
+        power_mw=None,
+        # Set either start/stop or full_range
+        start_nm=None,
+        stop_nm=None,
+        rull_range=None,
+        speed_nms=None,
+    ):
         self.sweep_abort_if_running()
         self.source_wavelength_sweep_mode("CONT")
         if power_mw:
@@ -329,35 +345,71 @@ class KeysightN777C(abs_instr.AbsInstrument):
         self.source_wavelength_sweep_state("START")
 
     def trigger_configuration(self, val):
-        """
-        """
+        """ """
         val = str(val).upper()
-        assert val in ("0", "DIS", "DISABLED", "1", "DEF", "DEFAULT", "2", "PASS", "PASSTHROUGH", "3", "LOOP", "LOOPBACK")
+        assert val in (
+            "0",
+            "DIS",
+            "DISABLED",
+            "1",
+            "DEF",
+            "DEFAULT",
+            "2",
+            "PASS",
+            "PASSTHROUGH",
+            "3",
+            "LOOP",
+            "LOOPBACK",
+        )
         self.com.write(f":trig:conf {val}")
 
     def trigger_configuration_ask(self):
-        """
-        """
+        """ """
         ret = self.com.query("trig:conf?").strip().upper()
-        assert ret in ("0", "DIS", "DISABLED", "1", "DEF", "DEFAULT", "2", "PASS", "PASSTHROUGH", "3", "LOOP", "LOOPBACK")
+        assert ret in (
+            "0",
+            "DIS",
+            "DISABLED",
+            "1",
+            "DEF",
+            "DEFAULT",
+            "2",
+            "PASS",
+            "PASSTHROUGH",
+            "3",
+            "LOOP",
+            "LOOPBACK",
+        )
         return ret
 
     def trigger_output(self, val):
-        """
-        """
+        """ """
         val = val.upper()
-        assert val in ("DIS", "DISABLED", "STF", "STFINISHED", "SWF", "SWFINISHED", "SWSTARTED")
+        assert val in (
+            "DIS",
+            "DISABLED",
+            "STF",
+            "STFINISHED",
+            "SWF",
+            "SWFINISHED",
+            "SWSTARTED",
+        )
         self.com.write(f":trig0:outp {val}")
 
     def trigger_output_ask(self):
-        """
-        """
+        """ """
         ret = self.com.query(":trig0:outp?").strip().upper()
         # XXX: this is what the manual says, but suspcious
-        assert ret in ("DIS", "DISABLED", "STF", "STFINISHED", "SWF", "SWFINISHED", "SWSTARTED")
+        assert ret in (
+            "DIS",
+            "DISABLED",
+            "STF",
+            "STFINISHED",
+            "SWF",
+            "SWFINISHED",
+            "SWSTARTED",
+        )
         return ret
-
-
 
     """
     Status Byte (STB)
@@ -442,20 +494,19 @@ class KeysightN777C(abs_instr.AbsInstrument):
             print("  OSEM:", self.get_OSESM())
             print("  OSCSR:", self.get_OSCSR())
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     import pyvisa
-    import time
 
     rm = pyvisa.ResourceManager()
 
     # Insufficient location information or the requested device or resource is not present in the system.
     # laser = KeysightN777C('TCPIP0::K-N7x778C-00324::inst0::INSTR')
     # fallback to IP address
-    laser = KeysightN777C('TCPIP::192.168.111.72::INSTR')
+    laser = KeysightN777C("TCPIP::192.168.111.72::INSTR")
 
     try:
         laser.dump_state()
-
 
         if 0:
             print("Check lock")
@@ -466,8 +517,6 @@ if __name__ == '__main__':
             laser.assert_errors()
             print("  Lock", laser.lock_ask())
             print("  Is on", laser.source_power_state_ask())
-
-
 
         print("")
 
@@ -538,7 +587,7 @@ if __name__ == '__main__':
             # laser.source_wavelength_sweep_softtrigger()
             print("Checking sweep")
             laser.source_wavelength_sweep_ask_assert()
-            print(f"Sweep state:", laser.source_wavelength_sweep_state_ask_str())
+            print("Sweep state:", laser.source_wavelength_sweep_state_ask_str())
             laser.assert_errors()
             print("Starting sweep")
             laser.lock(False)

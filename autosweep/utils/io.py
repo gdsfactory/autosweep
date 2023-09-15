@@ -1,8 +1,8 @@
+import csv
+import typing
 import zipfile
 
 import orjson
-import csv
-import typing
 
 from autosweep.utils import typing_ext
 
@@ -37,7 +37,7 @@ def read_json(path: typing_ext.PathLike) -> dict:
     :return: The contents of the JSON file
     :rtype: dict
     """
-    with open(path, 'r') as f:
+    with open(path) as f:
         raw = f.read()
 
     return orjson.loads(raw)
@@ -54,8 +54,12 @@ def write_json(data: dict, path: typing_ext.PathLike) -> None:
     :type path: str or pathlib.Path
     :return: None
     """
-    json_data = orjson.dumps(data, default=json_serializer, option=orjson.OPT_INDENT_2 | orjson.OPT_SERIALIZE_NUMPY)
-    with open(path, 'wb') as f:
+    json_data = orjson.dumps(
+        data,
+        default=json_serializer,
+        option=orjson.OPT_INDENT_2 | orjson.OPT_SERIALIZE_NUMPY,
+    )
+    with open(path, "wb") as f:
         f.write(json_data)
 
 
@@ -69,7 +73,7 @@ def write_csv(data: list[dict], path: typing_ext.PathLike) -> None:
     :type path: str or pathlib.Path
     :return: None
     """
-    with open(path, 'w') as f:
+    with open(path, "w") as f:
         w = csv.DictWriter(f, fieldnames=data[0].keys())
         w.writeheader()
         w.writerows(rowdicts=data)
@@ -87,8 +91,8 @@ def write_archive(src_path: typing_ext.PathLike, dst_path: typing_ext.PathLike) 
     :return: None
     """
 
-    dst_fn = dst_path / f'{src_path.name}.zip'
+    dst_fn = dst_path / f"{src_path.name}.zip"
 
-    with zipfile.ZipFile(dst_fn, mode='w') as arc:
-        for fn in src_path.rglob('*'):
+    with zipfile.ZipFile(dst_fn, mode="w") as arc:
+        for fn in src_path.rglob("*"):
             arc.write(fn, arcname=fn.relative_to(src_path.parent))

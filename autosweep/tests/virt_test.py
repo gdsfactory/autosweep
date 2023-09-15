@@ -1,14 +1,17 @@
-from autosweep.tests.abs_test import AbsTest
-from typing import TYPE_CHECKING
 from time import sleep
+from typing import TYPE_CHECKING
+
 import numpy as np
 
 from autosweep import sweep
+from autosweep.tests.abs_test import AbsTest
+
 if TYPE_CHECKING:
     from pathlib import Path
-    from autosweep.instruments.instrument_manager import InstrumentManager
-    from autosweep.exec_helpers.reporter import ResultsHold
+
     from autosweep.data_types.metadata import DUTInfo
+    from autosweep.exec_helpers.reporter import ResultsHold
+    from autosweep.instruments.instrument_manager import InstrumentManager
 
 
 class VirtualTest(AbsTest):
@@ -16,7 +19,7 @@ class VirtualTest(AbsTest):
     A virtual test, which can be used to exercise the TestExec functionality.
     """
 
-    def __init__(self, dut_info: 'DUTInfo', results: 'ResultsHold', save_path: 'Path'):
+    def __init__(self, dut_info: "DUTInfo", results: "ResultsHold", save_path: "Path"):
         """
 
         :param dut_info: The information about the device-under-test
@@ -29,7 +32,7 @@ class VirtualTest(AbsTest):
         super().__init__(dut_info=dut_info, results=results, save_path=save_path)
         self.logger.info("Initializing the virtual test")
 
-    def run_acquire(self, instr_mgr: 'InstrumentManager'):
+    def run_acquire(self, instr_mgr: "InstrumentManager"):
         """
         Generates data for an IV sweep of a 10-ohm and 20-ohm resistor. Does not need any actual instruments.
 
@@ -41,13 +44,13 @@ class VirtualTest(AbsTest):
 
         v = np.linspace(-1, 1, 21)
 
-        traces = {'v': v, 'i0': v/10, 'i1': v/20}
-        attrs = {'v': ("Voltage", "V"), 'i0': ("Current", "A"), 'i1': ("Current", "A")}
+        traces = {"v": v, "i0": v / 10, "i1": v / 20}
+        attrs = {"v": ("Voltage", "V"), "i0": ("Current", "A"), "i1": ("Current", "A")}
 
         s = sweep.Sweep(traces=traces, attrs=attrs)
         sleep(2)
 
-        self.save_data(sweeps={'iv': s}, metadata=None)
+        self.save_data(sweeps={"iv": s}, metadata=None)
 
     def run_analysis(self, report_headings: list):
         """
@@ -60,7 +63,7 @@ class VirtualTest(AbsTest):
         self.load_data()
         self.logger.info("Running the virtual analysis")
 
-        iv = self.sweeps['iv']
+        iv = self.sweeps["iv"]
 
         fig_hdlr = sweep.FigHandler()
         ax = fig_hdlr.ax
@@ -69,13 +72,19 @@ class VirtualTest(AbsTest):
 
         ax.legend()
         labels = iv.get_axis_labels()
-        ax.set_xlabel(labels['v'])
-        ax.set_ylabel(labels['i0'])
+        ax.set_xlabel(labels["v"])
+        ax.set_ylabel(labels["i0"])
 
-        fig_hdlr.save_fig(path=self.save_path / 'iv.png')
+        fig_hdlr.save_fig(path=self.save_path / "iv.png")
 
         report_heading = report_headings[0]
         info = {"a": "hello world"}
-        self.results.add_spec(report_heading=report_heading, spec='resist_i0', unit='ohm', value=10)
-        self.results.add_spec(report_heading=report_heading, spec='resist_i1', unit='ohm', value=20)
-        self.results.add_report_entry(report_heading=report_heading, fig_hdlr=fig_hdlr, info=info)
+        self.results.add_spec(
+            report_heading=report_heading, spec="resist_i0", unit="ohm", value=10
+        )
+        self.results.add_spec(
+            report_heading=report_heading, spec="resist_i1", unit="ohm", value=20
+        )
+        self.results.add_report_entry(
+            report_heading=report_heading, fig_hdlr=fig_hdlr, info=info
+        )

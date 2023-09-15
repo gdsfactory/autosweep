@@ -1,8 +1,6 @@
-from pathlib import Path
 from abc import ABC, abstractmethod
 
-from autosweep.utils import typing_ext
-from autosweep.utils import io
+from autosweep.utils import io, typing_ext
 
 
 class GeneralIOClass(ABC):
@@ -42,7 +40,6 @@ class FileWRer(GeneralIOClass):
     def __init__(self):
         self.filename = None
 
-
     @classmethod
     def read_json(cls, path: typing_ext.PathLike):
         """
@@ -69,5 +66,3 @@ class FileWRer(GeneralIOClass):
 
     def to_dict(self, **kwargs) -> dict:
         return vars(self)
-
-

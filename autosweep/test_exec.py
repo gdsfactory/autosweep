@@ -1,10 +1,10 @@
 import logging
 from pathlib import Path
 
-from autosweep.exec_helpers import status_writer, reporter
-from autosweep.data_types import recipe, metadata, station_config
+from autosweep.data_types import metadata, recipe, station_config
+from autosweep.exec_helpers import reporter, status_writer
 from autosweep.instruments import instrument_manager
-from autosweep.utils import typing_ext, registrar, io, logger
+from autosweep.utils import io, logger, registrar, typing_ext
 
 
 class TestExec:
@@ -26,14 +26,15 @@ class TestExec:
     :type path: str or pathlib.Path, optional
     """
 
-    def __init__(self,
-                 dut_info: 'metadata.DUTInfo',
-                 recipe: 'recipe.Recipe',
-                 station_config: 'station_config.StationConfig',
-                 gen_archive: bool = False,
-                 reanalyze: bool = False,
-                 path: typing_ext.PathLike | None = None):
-
+    def __init__(
+        self,
+        dut_info: "metadata.DUTInfo",
+        recipe: "recipe.Recipe",
+        station_config: "station_config.StationConfig",
+        gen_archive: bool = False,
+        reanalyze: bool = False,
+        path: typing_ext.PathLike | None = None,
+    ):
         self.logger = logging.getLogger(self.__class__.__name__)
 
         self.dut_info = dut_info
@@ -48,8 +49,7 @@ class TestExec:
 
         self.test_classes = registrar.TEST_CLASSES
 
-        self.timestamp = {'start': metadata.TimeStamp(),
-                          'end': None}
+        self.timestamp = {"start": metadata.TimeStamp(), "end": None}
 
         run_name = f'{self.dut_info.part_num}_{self.dut_info.ser_num}_{self.timestamp["start"]}'
         if self.reanalyze:
@@ -57,7 +57,7 @@ class TestExec:
         else:
             self.run_path = self.station_config.data_path / run_name
 
-        # Holds the functions related to writing the satus files, the test results, and code to generate reports, these
+        # Holds the functions related to writing the status files, the test results, and code to generate reports, these
         # functions/classes can be replaced when test_exec is inherited from to change the behavior.
 
         self.status_writer = status_writer.write_status
@@ -68,7 +68,7 @@ class TestExec:
         self.test_instances = {}
 
         # the folder to look for the HTML template
-        self.html_path = Path(__file__).parent / 'exec_helpers' / 'html'
+        self.html_path = Path(__file__).parent / "exec_helpers" / "html"
 
     def __enter__(self):
         self.run_path.mkdir(exist_ok=True)
@@ -82,9 +82,13 @@ class TestExec:
         if not self.reanalyze:
             self.instr_mgr.close_instruments()
 
-        self.timestamp['end'] = metadata.TimeStamp()
+        self.timestamp["end"] = metadata.TimeStamp()
 
-        status_fname = f'status_renalysis_{self.timestamp["start"]}.json' if self.reanalyze else 'status.json'
+        status_fname = (
+            f'status_renalysis_{self.timestamp["start"]}.json'
+            if self.reanalyze
+            else "status.json"
+        )
         self.status_writer(test_exec=self, path=self.run_path / status_fname)
         self.reports_generator(test_exec=self)
 
@@ -99,7 +103,9 @@ class TestExec:
         """
         if not self.reanalyze:
             self.logger.info("Starting instrument manager")
-            self.instr_mgr = instrument_manager.InstrumentManager(station_config=self.station_config)
+            self.instr_mgr = instrument_manager.InstrumentManager(
+                station_config=self.station_config
+            )
             self.instr_mgr.load_instruments(instr_names=self.recipe.instruments)
 
         for name, params in self.recipe.tests():
@@ -117,19 +123,23 @@ class TestExec:
         :type params: dict
         :return:
         """
-        test_class = params['class']
+        test_class = params["class"]
         self.logger.info(f"::: {name} - {test_class} ---+---+--->>")
         # create directory for each test
         test_path = self.run_path / name
         test_path.mkdir(exist_ok=True)
 
-        test_instance = self.test_classes[test_class](dut_info=self.dut_info, results=self.test_results,
-                                                      save_path=test_path, **params['init'])
+        test_instance = self.test_classes[test_class](
+            dut_info=self.dut_info,
+            results=self.test_results,
+            save_path=test_path,
+            **params["init"],
+        )
 
         # Don't acquire data if doing re-analysis
         if not self.reanalyze:
-            test_instance.run_acquire(instr_mgr=self.instr_mgr, **params['acquire'])
+            test_instance.run_acquire(instr_mgr=self.instr_mgr, **params["acquire"])
 
-        test_instance.run_analysis(**params['analysis'])
+        test_instance.run_analysis(**params["analysis"])
         self.test_results.validate()
         self.test_instances[name] = test_instance
