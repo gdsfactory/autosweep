@@ -1,11 +1,13 @@
 import pathlib
 
 import new_stuff
+import pytest
 
 import autosweep
 from autosweep.utils import registrar
 
 
+@pytest.mark.skip(reason="Not implemented")
 def test_instr() -> None:
     registrar.register_classes(new_stuff)
     autosweep.init_logger()

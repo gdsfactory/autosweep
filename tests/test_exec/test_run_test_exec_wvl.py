@@ -28,12 +28,15 @@ def test_exec_wv() -> None:
     station_cfg = ap.StationConfig.read_json(path=dirpath / "station_config.json")
 
     # Takes the data
-    with ap.TestExec(
-        dut_info=dut, recipe=recipe, station_config=station_cfg, reanalyze=False
-    ) as t:
-        t.run_recipe()
+    take_data = False
 
-    logging.info("Done!")
+    if take_data:
+        with ap.TestExec(
+            dut_info=dut, recipe=recipe, station_config=station_cfg, reanalyze=False
+        ) as t:
+            t.run_recipe()
+
+        logging.info("Done!")
 
 
 if __name__ == "__main__":

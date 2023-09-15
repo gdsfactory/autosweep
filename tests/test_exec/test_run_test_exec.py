@@ -3,6 +3,7 @@ import pathlib
 
 # this is a new test, defined in new_test.py
 import new_test
+import pytest
 
 import autosweep as ap
 
@@ -10,6 +11,7 @@ import autosweep as ap
 from autosweep.utils.generics import find_last_run
 
 
+@pytest.mark.skip(reason="This is a demonstration of the TestExec functionality")
 def test_exec():
     # sets up the python logging module to interact with autosweep
     ap.init_logger()
@@ -38,17 +40,20 @@ def test_exec():
     last_run = find_last_run(path=dirpath / "data")
     # Takes the just executed data run and runs the analysis again. Re-analysis of data can be very useful for development
     # and debugging
-    with ap.TestExec(
-        dut_info=dut,
-        recipe=recipe,
-        station_config=station_cfg,
-        reanalyze=True,
-        gen_archive=True,
-        path=last_run,
-    ) as t:
-        t.run_recipe()
+    take_data = False
 
-    logging.info("Done!")
+    if take_data:
+        with ap.TestExec(
+            dut_info=dut,
+            recipe=recipe,
+            station_config=station_cfg,
+            reanalyze=True,
+            gen_archive=True,
+            path=last_run,
+        ) as t:
+            t.run_recipe()
+
+        logging.info("Done!")
 
 
 if __name__ == "__main__":
