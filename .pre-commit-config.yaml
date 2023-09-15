@@ -49,9 +49,11 @@ repos:
       - id: j2lint
         args: [--ignore, jinja-statements-delimiter, jinja-statements-indentation, --]
   - repo: https://github.com/codespell-project/codespell
-    rev: 68ea3cff5eba266e0814794cce6cd19537f58137
+    rev: 38bc4a97f6e22827e86526148efa38f1044a97f8
     hooks:
       - id: codespell
+        additional_dependencies:
+          - tomli
 
   # - repo: https://github.com/kynan/nbstripout
   #   rev: e4c5b4dcbab4afa0b88b7a9243db42b1a8d95dde
