@@ -1,6 +1,8 @@
 import logging
+from collections.abc import Iterable
+from typing import Any
+
 import numpy as np
-from typing import Iterable, Any
 
 from autosweep.data_types import filereader
 from autosweep.utils import ta_math
@@ -19,7 +21,9 @@ class Sweep(filereader.GeneralIOClass):
     :type metadata: dict, optional
     """
 
-    def __init__(self, traces: dict, attrs: dict | None = None, metadata: dict | None = None):
+    def __init__(
+        self, traces: dict, attrs: dict | None = None, metadata: dict | None = None
+    ):
         self.logger = logging.getLogger(self.__class__.__name__)
 
         # checks on input types and shapes
@@ -40,19 +44,21 @@ class Sweep(filereader.GeneralIOClass):
         self._traces = {k: np.array(v) for k, v in traces.items()}
 
         t_keys = tuple(self._traces.keys())
-        self._aliases = {'x': t_keys[0], 'y': t_keys[1]} | {
-            f'y{ii}': k for ii, k in enumerate(t_keys[1:])
+        self._aliases = {"x": t_keys[0], "y": t_keys[1]} | {
+            f"y{ii}": k for ii, k in enumerate(t_keys[1:])
         }
         self._ranges = {}
-        self._len = len(self['x'])
+        self._len = len(self["x"])
         self._col_num = len(self._traces)
         for k, v in self._traces.items():
             self._ranges[k] = (np.min(v), np.max(v))
 
             # double check that every column has the same length
             if len(v) != self._len:
-                msg = f"Trace '{k}' does not have the same length as the x-trace. Every trace must have the same " \
-                          f"length."
+                msg = (
+                    f"Trace '{k}' does not have the same length as the x-trace. Every trace must have the same "
+                    f"length."
+                )
                 raise ValueError(msg)
 
         self.metadata = metadata if metadata else {}
@@ -119,7 +125,7 @@ class Sweep(filereader.GeneralIOClass):
         :return: The name of the first column of the trace data
         :rtype: str
         """
-        return self._aliases['x']
+        return self._aliases["x"]
 
     @property
     def y_cols(self) -> tuple[str]:
@@ -141,7 +147,7 @@ class Sweep(filereader.GeneralIOClass):
         """
 
         for y in self.y_cols:
-            yield y, self['x'], self[y]
+            yield y, self["x"], self[y]
 
     def get_trace_col(self, col: Any) -> str:
         """
@@ -168,7 +174,7 @@ class Sweep(filereader.GeneralIOClass):
         :return: The data needed to save to disk to recreate the instance
         :rtype: dict
         """
-        return {'traces': self._traces, 'attrs': self.attrs, 'metadata': self.metadata}
+        return {"traces": self._traces, "attrs": self.attrs, "metadata": self.metadata}
 
     def get_axis_labels(self, use_generic_names: bool = False) -> dict[str, str]:
         """
@@ -194,7 +200,9 @@ class Sweep(filereader.GeneralIOClass):
             labels[k] = f"{v[0]} ({v[1]})" if len(v) == 2 else v[0]
         return labels
 
-    def change_unit(self, col: str, coeff: float, unit: str | None = None, desc: str | None = None) -> None:
+    def change_unit(
+        self, col: str, coeff: float, unit: str | None = None, desc: str | None = None
+    ) -> None:
         """
         This method can change the scaling of a trace, it's unit, and its description. For example to change the
         a trace from 'V' to 'mV', the coeff is 1000 and the unit is 'mV'.
@@ -210,13 +218,15 @@ class Sweep(filereader.GeneralIOClass):
         :return: None
         """
         col = self.get_trace_col(col=col)
-        self._traces[col] = coeff*self._traces[col]
+        self._traces[col] = coeff * self._traces[col]
 
         if self.attrs:
             if unit:
                 self._attrs[col] = (desc, unit) if desc else (self._attrs[col][0], unit)
             else:
-                raise ValueError("The argument 'unit' must be defined for a Sweep with attrs")
+                raise ValueError(
+                    "The argument 'unit' must be defined for a Sweep with attrs"
+                )
 
     def filter_range(self, x_min: float, x_max: float):
         """
@@ -229,8 +239,8 @@ class Sweep(filereader.GeneralIOClass):
         :return: A new Sweep instance with the same attrs and metadata as this Sweep, but with smaller trace data bound
             by the (x_min, x_max).
         """
-        idx_min = ta_math.find_nearest_idx(array=self['x'], val=x_min)
-        idx_max = ta_math.find_nearest_idx(array=self['x'], val=x_max)
+        idx_min = ta_math.find_nearest_idx(array=self["x"], val=x_min)
+        idx_max = ta_math.find_nearest_idx(array=self["x"], val=x_max)
 
         traces = {col: trace[idx_min:idx_max] for col, trace in self._traces.items()}
         return Sweep(

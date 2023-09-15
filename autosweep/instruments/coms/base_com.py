@@ -1,5 +1,4 @@
 class BaseCOM:
-
     def __init__(self):
         pass
 

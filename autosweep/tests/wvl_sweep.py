@@ -1,15 +1,12 @@
-from autosweep.tests.abs_test import AbsTest
-from typing import TYPE_CHECKING
-import numpy as np
 import time
+from typing import TYPE_CHECKING
 
 from autosweep import sweep
+from autosweep.tests.abs_test import AbsTest
 from autosweep.utils import ta_math
+
 if TYPE_CHECKING:
-    from pathlib import Path
     from autosweep.instruments.instrument_manager import InstrumentManager
-    from autosweep.exec_helpers.reporter import ResultsHold
-    from autosweep.data_types.metadata import DUTInfo
 
 
 class WvlSweep(AbsTest):
@@ -18,7 +15,13 @@ class WvlSweep(AbsTest):
 
     """
 
-    def run_acquire(self, instr_mgr: 'InstrumentManager', wvl_start: float, wvl_stop: float, dwvl: float):
+    def run_acquire(
+        self,
+        instr_mgr: "InstrumentManager",
+        wvl_start: float,
+        wvl_stop: float,
+        dwvl: float,
+    ):
         """
         Sweeps a laser and returns readings from 2 optical powermeters.
 
@@ -32,8 +35,10 @@ class WvlSweep(AbsTest):
         :type dwvl: float
         :return: None
         """
-        lsr = instr_mgr.instrs['laser']  # gets laser from instrument manager
-        opm = instr_mgr.instrs['opt_pm'] # gets optical power meter from instrument manager
+        lsr = instr_mgr.instrs["laser"]  # gets laser from instrument manager
+        opm = instr_mgr.instrs[
+            "opt_pm"
+        ]  # gets optical power meter from instrument manager
 
         wvls = ta_math.get_grid(start=wvl_start, stop=wvl_stop, step=dwvl)
 
@@ -44,18 +49,26 @@ class WvlSweep(AbsTest):
         p2 = []
 
         for wvl in wvls:
-            lsr.source_channel_wavelength(0, 0, f'{wvl}NM')
+            lsr.source_channel_wavelength(0, 0, f"{wvl}NM")
             time.sleep(0.1)
-            p1.append(opm.initiate_channel_immediate(1, 1))  # makes a reading on channel 1
-            p2.append(opm.initiate_channel_immediate(1, 2))  # makes a reading on channel 2
+            p1.append(
+                opm.initiate_channel_immediate(1, 1)
+            )  # makes a reading on channel 1
+            p2.append(
+                opm.initiate_channel_immediate(1, 2)
+            )  # makes a reading on channel 2
 
         lsr.output_channel_state(output=0, channel=0, state=False)  # turning laser off
 
-        traces = {'wvl': wvls, 'p1': p1, 'p2': p2}
-        attrs = {'wvl': ("Wavelength", "nm"), 'p1': ("Power", "dBm"), 'p2': ("Power", "dBm")}
+        traces = {"wvl": wvls, "p1": p1, "p2": p2}
+        attrs = {
+            "wvl": ("Wavelength", "nm"),
+            "p1": ("Power", "dBm"),
+            "p2": ("Power", "dBm"),
+        }
 
         s = sweep.Sweep(traces=traces, attrs=attrs)
-        self.save_data(sweeps={'wvl': s}, metadata=None)
+        self.save_data(sweeps={"wvl": s}, metadata=None)
 
     def run_analysis(self, report_headings: list):
         """
@@ -68,7 +81,7 @@ class WvlSweep(AbsTest):
         self.load_data()
         self.logger.info("Running the virtual analysis")
 
-        iv = self.sweeps['wvl']
+        iv = self.sweeps["wvl"]
 
         fig_hdlr = sweep.FigHandler()
         ax = fig_hdlr.ax
@@ -77,10 +90,10 @@ class WvlSweep(AbsTest):
 
         ax.legend()
         labels = iv.get_axis_labels()
-        ax.set_xlabel(labels['wvl'])
-        ax.set_ylabel(labels['p1'])
+        ax.set_xlabel(labels["wvl"])
+        ax.set_ylabel(labels["p1"])
 
-        fig_hdlr.save_fig(path=self.save_path / 'wvl.png')
+        fig_hdlr.save_fig(path=self.save_path / "wvl.png")
 
         report_heading = report_headings[0]
         self.results.add_report_entry(report_heading=report_heading, fig_hdlr=fig_hdlr)

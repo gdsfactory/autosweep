@@ -1,13 +1,11 @@
 import logging
-from typing import Iterable
+from collections.abc import Iterable
 
-from autosweep.utils import typing_ext
-from autosweep.utils import io
 from autosweep.data_types import filereader
+from autosweep.utils import io, typing_ext
 
 
 class Recipe(filereader.FileWRer):
-
     def __init__(self, recipe: dict):
         super().__init__()
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -29,7 +27,7 @@ class Recipe(filereader.FileWRer):
         :return: The instrument instance names needed
         :rtype: tuple[str]
         """
-        return tuple(self.recipe['instruments'])
+        return tuple(self.recipe["instruments"])
 
     def to_json(self, path: typing_ext.PathLike):
         io.write_json(data=self.recipe, path=path)
@@ -43,5 +41,5 @@ class Recipe(filereader.FileWRer):
 
         :yields: tuple[str, dict]
         """
-        for test in self.recipe['tests']:
+        for test in self.recipe["tests"]:
             yield tuple(test)

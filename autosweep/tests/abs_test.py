@@ -1,12 +1,13 @@
-from abc import ABC, abstractmethod
 import logging
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-from autosweep.data_types.metadata import DUTInfo
 from autosweep import sweep
+from autosweep.data_types.metadata import DUTInfo
 
 if TYPE_CHECKING:
     from pathlib import Path
+
     from autosweep.exec_helpers.reporter import ResultsHold
     from autosweep.instruments.instrument_manager import InstrumentManager
 
@@ -19,7 +20,7 @@ class AbsTest(ABC):
     # This needs to be true, otherwise it will not be registered as a test by the registrar.
     _ta_test = True
 
-    def __init__(self, dut_info: 'DUTInfo', results: 'ResultsHold', save_path: 'Path'):
+    def __init__(self, dut_info: "DUTInfo", results: "ResultsHold", save_path: "Path"):
         """
 
         :param dut_info: The information about the device-under-test
@@ -36,7 +37,7 @@ class AbsTest(ABC):
         self.instrument_manager = None
 
         self.save_path = save_path
-        self.raw_data_fname = 'raw_data.json'
+        self.raw_data_fname = "raw_data.json"
 
         self._raw_data = False
         self.metadata = None
@@ -45,7 +46,7 @@ class AbsTest(ABC):
         self.results = results
 
     @abstractmethod
-    def run_acquire(self, instr_mgr: 'InstrumentManager') -> None:
+    def run_acquire(self, instr_mgr: "InstrumentManager") -> None:
         """
         This method is called by the TestExec for data acquisition. It must be overwritten.
 
@@ -55,7 +56,9 @@ class AbsTest(ABC):
         """
         raise NotImplementedError
 
-    def save_data(self, sweeps: dict | None = None, metadata: dict | None = None) -> None:
+    def save_data(
+        self, sweeps: dict | None = None, metadata: dict | None = None
+    ) -> None:
         """
         A helper method that can be called from within 'run_acquire()' to save data in a standardized way.
 
@@ -77,8 +80,12 @@ class AbsTest(ABC):
         self.sweeps = sweeps
         self.metadata = metadata if metadata else {}
 
-        sweep.io.to_json(sweeps=self.sweeps, metadata=self.metadata, dut_info=self.dut_info,
-                         path=self.save_path / self.raw_data_fname)
+        sweep.io.to_json(
+            sweeps=self.sweeps,
+            metadata=self.metadata,
+            dut_info=self.dut_info,
+            path=self.save_path / self.raw_data_fname,
+        )
 
         self._raw_data = True
 
@@ -99,4 +106,6 @@ class AbsTest(ABC):
         """
         # no point reading in data if it's already in memory
         if not self._raw_data:
-            self.sweeps, self.metadata, _ = sweep.io.read_json(path=self.save_path / self.raw_data_fname)
+            self.sweeps, self.metadata, _ = sweep.io.read_json(
+                path=self.save_path / self.raw_data_fname
+            )

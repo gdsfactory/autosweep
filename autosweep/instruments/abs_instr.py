@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 import logging
 
 
@@ -35,7 +34,7 @@ class AbsInstrument:
 
         :return: The "*IDN?" string of the instrument or equivalent
         """
-        self._idn = self.com.query('*IDN?')
+        self._idn = self.com.query("*IDN?")
         return self.idn
 
     def close(self):

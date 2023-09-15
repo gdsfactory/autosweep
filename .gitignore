@@ -5,6 +5,8 @@ __pycache__/
 
 # C extensions
 *.so
+*.json
+_autosummary/
 
 # Distribution / packaging
 .Python

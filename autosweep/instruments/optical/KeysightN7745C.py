@@ -6,7 +6,7 @@ from autosweep.instruments.coms import visa_coms
 
 class KeysightN7745C(abs_instr.AbsInstrument):
     """
-    Driver written by Helge Gehring, modified to work with AutoSweep. 
+    Driver written by Helge Gehring, modified to work with AutoSweep.
 
     :param addrs: The VISA-resource string for this instrument
     :type addrs: str
@@ -14,9 +14,9 @@ class KeysightN7745C(abs_instr.AbsInstrument):
 
     def __init__(self, addrs: str):
         super().__init__(com=visa_coms.VisaCOM(addrs=addrs))
-        
+
     def idn_ask(self):
-        return self.com.query('*IDN?')
+        return self.com.query("*IDN?")
 
     def system_error_ask(self):
         return self.com.query(":system:error?")
@@ -32,7 +32,7 @@ class KeysightN7745C(abs_instr.AbsInstrument):
                 If the reference state is absolute, units are dBm or W.
                 If the reference state is relative, units are dB.
         """
-        return float(self.com.query(f':fetch{n}:power?'))
+        return float(self.com.query(f":fetch{n}:power?"))
 
     def fetch_power_all(self):
         """
@@ -43,7 +43,9 @@ class KeysightN7745C(abs_instr.AbsInstrument):
 
         :return: Data values are always in Watt. (Seems no to be the case)
         """
-        return self.com.query_binary_values(f':fetch:power:all?', datatype='f', is_big_endian=False)
+        return self.com.query_binary_values(
+            ":fetch:power:all?", datatype="f", is_big_endian=False
+        )
 
     def initiate_channel_immediate(self, n, m):
         """
@@ -51,9 +53,9 @@ class KeysightN7745C(abs_instr.AbsInstrument):
         In logging mode it triggers all channels independent from [n].
         """
         if m:
-            self.com.write(f':initiate{n}:channel{m}:immediate')
+            self.com.write(f":initiate{n}:channel{m}:immediate")
         else:
-            self.com.write(f':initiate{n}:immediate')
+            self.com.write(f":initiate{n}:immediate")
 
     def initiate_channel_continuous(self, n, channel, continuous):
         """
@@ -62,7 +64,9 @@ class KeysightN7745C(abs_instr.AbsInstrument):
         True: measure continuously
         """
         if channel:
-            self.com.write(f':initiate{n}:channel{channel}:continuous {"on" if continuous else "off"}')
+            self.com.write(
+                f':initiate{n}:channel{channel}:continuous {"on" if continuous else "off"}'
+            )
         else:
             self.com.write(f':initiate{n}:continuous {"on" if continuous else "off"}')
 
@@ -86,7 +90,9 @@ class KeysightN7745C(abs_instr.AbsInstrument):
         Details can be found in the Application Note "Transient Optical Power Measurements with the N7744A and N7745A"
         http://literature.cdn.keysight.com/litweb/pdf/5990-3710EN.pdf.
         """
-        self.com.write(f':sense{n}:function:parameter:logging {data_points},{averaging_time}')
+        self.com.write(
+            f":sense{n}:function:parameter:logging {data_points},{averaging_time}"
+        )
 
     def sense_function_result_ask(self):
         """
@@ -102,7 +108,11 @@ class KeysightN7745C(abs_instr.AbsInstrument):
 
         :return: the data array of the last data acquisition function.
         """
-        result = np.array(self.com.query_binary_values(f':sense:function:result?', datatype='f', is_big_endian=False))
+        result = np.array(
+            self.com.query_binary_values(
+                ":sense:function:result?", datatype="f", is_big_endian=False
+            )
+        )
         self.com.read()
         return result
 
@@ -120,7 +130,7 @@ class KeysightN7745C(abs_instr.AbsInstrument):
         :return:
         """
 
-        self.com.write(f':sense{n}:function:state {state}')
+        self.com.write(f":sense{n}:function:state {state}")
 
     def sense_function_state_ask(self, n):
         """
@@ -134,7 +144,7 @@ class KeysightN7745C(abs_instr.AbsInstrument):
             COMPLETE Data acquisition function is complete
         """
 
-        return self.com.query(f'sense{n}:function:state?')
+        return self.com.query(f"sense{n}:function:state?")
 
     def trigger_input(self, n, trigger_response):
         """
@@ -152,7 +162,7 @@ class KeysightN7745C(abs_instr.AbsInstrument):
             THReshold: Similar to PRE, but the starting event is minimum and maximum threshold values. If you don't want
                         both limit, you can write NAN instead of number.
         """
-        self.com.write(f':trigger{n}:input {trigger_response}')
+        self.com.write(f":trigger{n}:input {trigger_response}")
 
     def sense_power_range(self, range):
         """
@@ -164,31 +174,33 @@ class KeysightN7745C(abs_instr.AbsInstrument):
             dBm intervals. Units are in dBm.
         """
 
-        self.com.write(f':sense:power:range {range}dBm')
+        self.com.write(f":sense:power:range {range}dBm")
 
-if __name__ == '__main__':
-    import pyvisa
+
+if __name__ == "__main__":
     import time
+
+    import pyvisa
 
     rm = pyvisa.ResourceManager()
 
-    detector = KeysightN7745C(rm.open_resource('TCPIP::192.168.111.144::INSTR'))
+    detector = KeysightN7745C(rm.open_resource("TCPIP::192.168.111.144::INSTR"))
 
-    detector.sense_function_state(1, 'stop')
-    detector.trigger_input(1, 'ignore')
+    detector.sense_function_state(1, "stop")
+    detector.trigger_input(1, "ignore")
     detector.initiate_channel_continuous(1, None, True)
     detector.sense_power_range(-20)
 
     exit()
 
-    detector.sense_function_state(1, 'logging,stop')
-    detector.trigger_input(1, 'Cmeasure')
-    detector.sense_function_parameter_logging(0, 10000, f'{(1650 - 1450) / 20 / 10000}')
-    detector.sense_function_state(1, 'logging,start')
+    detector.sense_function_state(1, "logging,stop")
+    detector.trigger_input(1, "Cmeasure")
+    detector.sense_function_parameter_logging(0, 10000, f"{(1650 - 1450) / 20 / 10000}")
+    detector.sense_function_state(1, "logging,start")
 
-    while 'PROGRESS' in detector.sense_function_state_ask(1):
+    while "PROGRESS" in detector.sense_function_state_ask(1):
         print(detector.sense_function_state_ask(1))
-        time.sleep(.5)
+        time.sleep(0.5)
 
     data = detector.sense_function_result_ask()
 

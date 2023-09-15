@@ -1,5 +1,5 @@
-import logging
 import functools
+import logging
 from datetime import datetime
 
 from autosweep.utils.params import datetime_frmt
@@ -73,7 +73,7 @@ class PN(MetaNum):
         return self._num_full
 
     def to_dict(self) -> dict:
-        return {'num': self.num, 'rev': self.rev}
+        return {"num": self.num, "rev": self.rev}
 
 
 class SN(MetaNum):
@@ -131,13 +131,13 @@ class DUTInfo:
         :param data: The data to generate the instance
         :type data: dict
         """
-        pn_dict = data['part_num']
-        sn_dict = data['ser_num']
+        pn_dict = data["part_num"]
+        sn_dict = data["ser_num"]
 
-        part_num = PN(num=pn_dict['num'], rev=pn_dict['rev'])
-        ser_num = SN(num=sn_dict['num'])
+        part_num = PN(num=pn_dict["num"], rev=pn_dict["rev"])
+        ser_num = SN(num=sn_dict["num"])
 
-        return DUTInfo(part_num=part_num, ser_num=ser_num, **data['attrs'])
+        return DUTInfo(part_num=part_num, ser_num=ser_num, **data["attrs"])
 
     def __str__(self) -> str:
         return f"<{self.__module__}.{self.__class__.__name__}: PN: {self.part_num}, SN: {self.ser_num}>"
@@ -171,16 +171,16 @@ class DUTInfo:
         """
 
         return {
-            'part_num': self.part_num_obj.to_dict(),
-            'ser_num': self.ser_num_obj.to_dict(),
-            'attrs': self.attrs,
+            "part_num": self.part_num_obj.to_dict(),
+            "ser_num": self.ser_num_obj.to_dict(),
+            "attrs": self.attrs,
         }
 
 
 @functools.total_ordering
 class TimeStamp:
     """
-    A TimeStamp is a simple object based on python's datetime which is used to represent dates and times in a convinent
+    A TimeStamp is a simple object based on python's datetime which is used to represent dates and times in a convenient
     way for AutoSweep.
 
     :param timestamp: The datetime to store, if nothing is specified, then the stored datetime is now.

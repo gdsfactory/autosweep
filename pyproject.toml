@@ -37,10 +37,9 @@ dev = [
 ]
 docs = [
   "jupytext",
-  "autodoc_pydantic",
+  "pydata_sphinx_theme==0.13.1",
   "matplotlib",
-  "jupyter-book==0.15.1",
-  "sphinx-click"
+  "jupyter-book==0.15.1"
 ]
 
 [tool.black]
@@ -101,6 +100,7 @@ python_files = ["autosweep/*.py", "notebooks/*.ipynb", "tests/*.py"]
 testpaths = ["autosweep/", "tests"]
 
 [tool.ruff]
+fix = true
 ignore = [
   "E501",  # line too long, handled by black
   "B008",  # do not perform function calls in argument defaults

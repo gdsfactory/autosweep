@@ -14,7 +14,7 @@ class Keysight8164B(abs_instr.AbsInstrument):
         super().__init__(com=visa_coms.VisaCOM(addrs=addrs))
 
     def idn_ask(self):
-        return self.com.query('*IDN?')
+        return self.com.query("*IDN?")
 
     def system_error_ask(self):
         return self.com.query(":system:error?")
@@ -30,18 +30,18 @@ class Keysight8164B(abs_instr.AbsInstrument):
         :return:
         """
         self.com.write(
-            (f':source{source}' if source else '') +
-            (f':channel{channel}' if channel else '') +
-            f':wavelength {wavelength}'
+            (f":source{source}" if source else "")
+            + (f":channel{channel}" if channel else "")
+            + f":wavelength {wavelength}"
         )
 
     def source_channel_wavelength_sweep_softtrigger(self, source=None, channel=None):
         self.com.write(
-            (f':source{source}' if source else '') +
-            (f':channel{channel}' if channel else '') +
-            ':wavelength' +
-            ':sweep' +
-            ':softtrigger'
+            (f":source{source}" if source else "")
+            + (f":channel{channel}" if channel else "")
+            + ":wavelength"
+            + ":sweep"
+            + ":softtrigger"
         )
 
     def source_channel_wavelength_sweep_state(self, source, channel, state):
@@ -69,11 +69,11 @@ class Keysight8164B(abs_instr.AbsInstrument):
         """
 
         self.com.write(
-            (f':source{source}' if source else '') +
-            (f':channel{channel}' if channel else '') +
-            ':wavelength' +
-            ':sweep' +
-            f':state {state}'
+            (f":source{source}" if source else "")
+            + (f":channel{channel}" if channel else "")
+            + ":wavelength"
+            + ":sweep"
+            + f":state {state}"
         )
 
     def source_channel_wavelength_sweep_state_ask(self, source=None, channel=None):
@@ -82,12 +82,12 @@ class Keysight8164B(abs_instr.AbsInstrument):
 
         :return: True if running
         """
-        return '+1' in self.com.query(
-            (f':source{source}' if source else '') +
-            (f':channel{channel}' if channel else '') +
-            ':wavelength' +
-            ':sweep' +
-            ':state?'
+        return "+1" in self.com.query(
+            (f":source{source}" if source else "")
+            + (f":channel{channel}" if channel else "")
+            + ":wavelength"
+            + ":sweep"
+            + ":state?"
         )
 
     def trigger_channel_output(self, trigger, channel, mode):
@@ -107,14 +107,14 @@ class Keysight8164B(abs_instr.AbsInstrument):
         """
 
         self.com.write(
-            f':trigger{trigger}' +
-            (f':channel{channel}' if channel else '') +
-            f':output {mode}'
+            f":trigger{trigger}"
+            + (f":channel{channel}" if channel else "")
+            + f":output {mode}"
         )
 
     def output_channel_state(self, output, channel, state):
         self.com.write(
-            f':output{output}' +
-            (f':channel{channel}' if channel else '') +
-            f':state {"ON" if state else "OFF"}'
+            f":output{output}"
+            + (f":channel{channel}" if channel else "")
+            + f':state {"ON" if state else "OFF"}'
         )
