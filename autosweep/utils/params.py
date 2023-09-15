@@ -1,8 +1,5 @@
 import logging
 
-# code version
-version = "0.1.0"
-
 # Logging settings
 logger_format = r"%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 logger_level = logging.INFO
