@@ -10,7 +10,7 @@ def test_instr() -> None:
     registrar.register_classes(new_stuff)
     autosweep.init_logger()
 
-    dirpath = pathlib.Path(__file__).parent.absolute()
+    dirpath = pathlib.Path(__file__).parent.parent.absolute()
     station_cfg = autosweep.StationConfig.read_json(
         path=dirpath / "test_exec" / "station_config.json"
     )
@@ -20,3 +20,7 @@ def test_instr() -> None:
 
     print(station_cfg.instruments)
     print(station_cfg.station_config)
+
+
+if __name__ == "__main__":
+    test_instr()
