@@ -38,7 +38,7 @@ dev = [
 ]
 docs = [
   "jupytext",
-  "pydata_sphinx_theme==0.13.1",
+  "pydata_sphinx_theme==0.14.0",
   "matplotlib",
   "jupyter-book==0.15.1"
 ]
