@@ -17,7 +17,6 @@ from autosweep.utils.params import (
     datetime_frmt,
     logger_format,
     logger_level,
-    version,
 )
 from autosweep.utils.registrar import (
     INSTR_CLASSES,
@@ -58,7 +57,6 @@ __all__ = [
     "registrar",
     "ta_math",
     "typing_ext",
-    "version",
     "write_archive",
     "write_csv",
     "write_json",
