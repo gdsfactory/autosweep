@@ -172,7 +172,7 @@ regex = '''
 
 [tool.towncrier]
 directory = ".changelog.d"
-filename = "changelog.md"
+filename = "CHANGELOG.md"
 issue_format = "[#{issue}](https://github.com/gdsfactory/autosweep/issues/{issue})"
 start_string = "<!-- towncrier release notes start -->\n"
 template = ".changelog.d/changelog_template.jinja"
