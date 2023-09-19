@@ -26,7 +26,7 @@ license = {file = "LICENSE"}
 name = "autosweep"
 readme = "README.md"
 requires-python = ">=3.10"
-version = "0.0.2"
+version = "0.0.3"
 
 [project.optional-dependencies]
 dev = [
@@ -158,7 +158,7 @@ message_template = "Bump to {new_version}"
 tag_template = "v{new_version}"
 
 [tool.tbump.version]
-current = "0.0.2"
+current = "0.0.3"
 # Example of a semver regexp.
 # Make sure this matches current_version before
 # using tbump
