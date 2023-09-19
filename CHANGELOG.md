@@ -2,7 +2,7 @@
 
 <!-- towncrier release notes start -->
 
-## [0.0.3](https://github.com/gdsfactory/autosweep/tree/0.0.3) - 2023-09-18
+## [0.0.3](https://github.com/gdsfactory/autosweep/releases/tag/0.0.3) - 2023-09-18
 
 
 ### Added
