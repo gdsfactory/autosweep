@@ -10,7 +10,7 @@ correct formatting will work.
 For loading a file `station_config = StationConfig.read_json(path=Path('station_config.json'))`.
 For creating a `StationConfig` from a `dict`, use `station_config = StationConfig({...})`.
 
-Key            |type  | Description 
+Key            |type  | Description
 ---------------|-------| ----------------------------------------------------
 `station_id`   |`str`  | A single unique identifier of the station itself.
 paths        |`dict` | locations to read  and save data. Two keys are supported; `base`, whose value is the parent directory for all other directories listed, and `data`, whose value is the name of the directory where all raw data is saved.
@@ -93,4 +93,3 @@ The script that runs the TestExec must also register the test with AutoSweep bef
 ## Adding an Instrument
 
 To add a new instrument, you need to create a class which inherits from `autosweep.instruments.abs_instr.AbsInstrument`.
-
