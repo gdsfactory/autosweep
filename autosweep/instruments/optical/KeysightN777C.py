@@ -10,6 +10,7 @@ Wavelength:
 Wavelength resolution 0.1 pm (17.5 MHz at 1310 nm, 14.3 MHz at 1450 nm, 12.5 MHz at 1550 nm)
 """
 import time
+import struct
 
 from autosweep.instruments import abs_instr
 from autosweep.instruments.coms import visa_coms
@@ -176,6 +177,47 @@ class KeysightN777C(abs_instr.AbsInstrument):
     def source_power_ask_mw(self):
         assert self.source_power_unit_ask_str() == "Watts"
         return self.source_power_ask() * 1e3
+
+    def source_power_max_spectrum(self):
+        """
+        Returns the maximum power the laser can produce at each wavelength.
+        
+        :return:
+            wl:   wavelength for which maximum power is given [m]
+            pmax: maxmimum of power [W] available at the wavelength
+
+
+        """
+        self.com.com.write(":sour0:read:data? pmax")
+        data_raw = laser.com.com.read_raw()
+
+        SIZE_WL_BYTES = 8
+        SIZE_POW_BYTES = 4
+
+        """
+        For the data extraction:
+            blocks of data are given as Binary Blocks, preceded by
+            “#<H><Len><Block>”; <H> represents the number of digits,
+            <Len> represents the number of bytes, and <Block> is the data block
+        From Keysight N777-C Series Tunable Laser Family programming guide p.14
+        """
+        H = int(chr(data[1]))
+        Len = int(data[2:2 + H])
+        Block = data[2 + H: -1]
+        assert Len == len(Block)
+
+        wl = []
+        pmax = []
+        for id in range(blocks // (SIZE_WL_VALUE + SIZE_POW_VALUE)):
+            id_wl = id * (SIZE_WL_VALUE + SIZE_POW_VALUE)
+            wl.append(
+                struct.unpack('<d', Block[id_wl:id_wl + SIZE_WL_VALUE])
+            )
+            id_pow = id_wl + SIZE_WL_VALUE
+            pmax.append(
+                struct.unpack('f', Block[id_pow:id_pow + SIZE_POW_VALUE])
+            )
+        return wl, pmax
 
     def source_wavelength_correction_ara(self):
         """
