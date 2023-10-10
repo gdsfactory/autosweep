@@ -326,7 +326,7 @@ class KeysightN777C(abs_instr.AbsInstrument):
         if start_nm:
             self.source_wavelength_sweep_start_nm(start_nm)
         if stop_nm:
-            self.source_wavelength_sweep_start_nm(start_nm)
+            self.source_wavelength_sweep_stop_nm(stop_nm)
         if rull_range:
             self.sweep_full_range()
         self.assert_errors()
