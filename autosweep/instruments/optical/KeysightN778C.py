@@ -6,7 +6,7 @@ from autosweep.instruments import abs_instr
 from autosweep.instruments.coms import visa_coms
 
 
-class KeysightN7786C(abs_instr.AbsInstrument):
+class KeysightN778C(abs_instr.AbsInstrument):
     """
     Driver written by Lucas Grosjean
 
@@ -28,6 +28,54 @@ class KeysightN7786C(abs_instr.AbsInstrument):
         self.clear_errors()
         self.assert_errors()
 
+    def idn_ask(self):
+        return self.com.query("*IDN?").strip()
+
+    def idn_ask_dict(self):
+        vendor, model, serial, version = self.idn_ask().split(",")
+        """
+        Example
+        IDN Keysight Technologies,N7786C,MY59700220,V2.022
+        """
+        return {
+            "vendor": vendor.strip(),
+            "model": model.strip(),
+            "serial": serial.strip(),
+            "version": version.strip(),
+        }
+
+    def system_error_ask(self):
+        return self.com.query(":SYSTEM:ERROR?").strip()
+
+    def clear_errors(self):
+        while True:
+            error = self.system_error_ask().strip()
+            if error == '+0,"No error"':
+                break
+
+    def print_if_errors(self):
+        errors = []
+        while True:
+            error = self.system_error_ask().strip()
+            if error == '+0,"No error"':
+                break
+            errors.append(error)
+        if errors:
+            print("Encountered errors:", errors)
+
+    def assert_errors(self):
+        errors = []
+        while True:
+            error = self.system_error_ask().strip()
+            if error == '+0,"No error"':
+                break
+            errors.append(error)
+        if errors:
+            assert 0, f"Encountered errors: {errors}"
+        
+    def model(self):
+        return self.idn_ask_dict()["model"]
+        
     def measure_stokes_params(self, normalized: bool = True):
         """
         Returns the measured S0, S1, S2 and S3 stokes parameter.
@@ -134,7 +182,7 @@ class KeysightN7786C(abs_instr.AbsInstrument):
         """
         min_avail_wl = float(self.com.query(":POL:WAV? MIN")) * 1e9
         if not(min_avail_wl <= wl):
-            raise ValueError(f"Wavelength need to be above{min_wl}nm.")
+            raise ValueError(f"Wavelength need to be above{min_avail_wl}nm.")
         else:
             self.com.write(f":POL:WAV {wl}NM MIN")
 
@@ -147,7 +195,7 @@ class KeysightN7786C(abs_instr.AbsInstrument):
         """
         max_avail_wl = float(self.com.query(":POL:WAV? MAX")) * 1e9
         if not(wl <= max_avail_wl):
-            raise ValueError(f"Wavelength need to be below{min_wl}nm.")
+            raise ValueError(f"Wavelength need to be below{max_avail_wl}nm.")
         else:
             self.com.write(f":POL:WAV {wl}NM MAX")
 
@@ -366,8 +414,8 @@ class KeysightN7786C(abs_instr.AbsInstrument):
                 "The sweet rate [nm/s] can only be set "
                 + "with disabled trigger."
             )
-        else:
-            self.com.write(f":POL:SWE:RAT {}NM/S")
+
+        self.com.write(f":POL:SWE:RAT {val}NM/S")
 
     def ask_sweep_rate_nm_per_s(self):
         """
@@ -592,7 +640,7 @@ class KeysightN7786C(abs_instr.AbsInstrument):
         factor = int(self.com.query(":POL:TRIG:OFFS?"))
         return factor / 32
 
-    def set_trigger_offset(self val: int):
+    def set_trigger_offset(self, val: int):
         """
         Defines number of triggers,
         which will be ignored before first trigger event.
