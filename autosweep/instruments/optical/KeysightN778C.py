@@ -149,10 +149,10 @@ class KeysightN778C(abs_instr.AbsInstrument):
         Returns:
             Power unit
         """
-        raw = self.com.query(":POL:POW:UNIT?")
+        raw = self.com.query(":POL:POW:UNIT?").strip()
         return {
-            0: "dBm",
-            1: "Watts",
+            "0": "dBm",
+            "1": "Watts",
         }[raw]
 
     def set_wavelength_nm(self, wl: float):
@@ -341,17 +341,49 @@ class KeysightN778C(abs_instr.AbsInstrument):
         """
         return self.com.query(":POL:SWE:STAT?").strip().split(",")
 
-    def get_measured_stokes_params(self):
-    #TODO: What does it do?!
+    def get_measured_stokes_params(self, val: str = None):
         """
-        
+        Returns the logged measured results.
+
+        Returns:
+            None: returns 4,* dimensional array with S0, S1, S2, S3
+            SOP: returns 4,* dimensional array with S0, S1, S2, S3
+            NORMalized: returns 3,* dimensional array with S1, S2, S3
         """
+        if val is None:
+            return np.array(
+                self.com.com.query_binary_values(
+                    ":POL:SWE:GET?", datatype="f", is_big_endian=False
+                ).reshape((-1, 4)).T
+            )
+        val = val.upper()
+        assert val in ("SOP", "NORM", "NORMALIZED") 
+        if val == "SOP":
+            return np.array(
+                self.com.com.query_binary_values(
+                    ":POL:SWE:GET? SOP", datatype="f", is_big_endian=False
+                ).reshape((-1, 4)).T
+            )
+        else:
+            return np.array(
+                self.com.com.query_binary_values(
+                    ":POL:SWE:GET? NORM", datatype="f", is_big_endian=False
+                ).reshape((-1, 3)).T
+            )
 
     def get_measured_power(self):
-    #TODO: What does it do?!
         """
-        
+        Returns the logged measured power.
+
+        Returns:
+            Numpy array of power [Watt]
         """
+        return np.array(
+            self.com.com.query_binary_values(
+                ":POL:FUNC:RES?", datatype="f", is_big_endian=False
+            )
+        )
+
 
     def get_number_logged_loops(self):
         """
@@ -549,9 +581,8 @@ class KeysightN778C(abs_instr.AbsInstrument):
         return int(self.com.query(":POL:SWE:TRIG:POST:SAMP?"))
     
     def set_trigger_input(
-        self, val, min: float = None, max: float = None
+        self, val: str, pmin: float = None, pmax: float = None
         ):
-        # TODO: Finish this one
         """
         Defines the trigger input.
 
@@ -569,11 +600,34 @@ class KeysightN778C(abs_instr.AbsInstrument):
                       with specified number of samples
             MMEasure: One trigger executes specified number of loops
                       with specified number of samples
-            THReshold: Define minimum and maximum treshold power limits for triggering.
+            THReshold: Define minimum and maximum treshold power [Watt] limits for triggering.
                        You have to pass two paramters additionally.
             If you don't want minimum or maximum limit,
             send NAN instead of number.
         """
+        val = val.upper()
+        assert val in (
+            "NONE",
+            "TTLHIGH",
+            "TTLLOW",
+            "SOPCHANGE",
+            "PRETRIGGER_TTLHIGH",
+            "PRETRIGGER_TTLLOW",
+            "SMEASURE",
+            "SME",
+            "CMEASURE",
+            "CME",
+            "MMEASURE",
+            "MME",
+            "THRESHOLD",
+            "THR"
+        )
+
+        if val in ("THRESHOLD", "THR"):
+            if not(pmin or pmax):
+                raise ValueError("THReshold requires a minimum and a maximum power.")
+            self.com.write(f":POL:TRIG:INP {val},{pmin},{pmax}")
+        self.com.write(f":POL:TRIG:INP {val}")
     
     def ask_trigger_input(self):
         """
