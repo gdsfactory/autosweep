@@ -170,8 +170,8 @@ class KeysightN778C(abs_instr.AbsInstrument):
                 "Wavelength need to be comprised between"
                 + f"{min_wl}nm and {max_wl}nm."
             )
-        else:
-            self.com.write(f":POL:WAV {wl}NM")
+
+        self.com.write(f":POL:WAV {wl}NM")
 
     def set_min_wavelength_nm(self, wl: float):
         """
@@ -183,8 +183,8 @@ class KeysightN778C(abs_instr.AbsInstrument):
         min_avail_wl = float(self.com.query(":POL:WAV? MIN")) * 1e9
         if not(min_avail_wl <= wl):
             raise ValueError(f"Wavelength need to be above{min_avail_wl}nm.")
-        else:
-            self.com.write(f":POL:WAV {wl}NM MIN")
+
+        self.com.write(f":POL:WAV {wl}NM MIN")
 
     def set_max_wavelength_nm(self, wl: float):
         """
@@ -196,8 +196,8 @@ class KeysightN778C(abs_instr.AbsInstrument):
         max_avail_wl = float(self.com.query(":POL:WAV? MAX")) * 1e9
         if not(wl <= max_avail_wl):
             raise ValueError(f"Wavelength need to be below{max_avail_wl}nm.")
-        else:
-            self.com.write(f":POL:WAV {wl}NM MAX")
+
+        self.com.write(f":POL:WAV {wl}NM MAX")
 
     def ask_wavelength(self, val: str = None):
         """
@@ -234,8 +234,8 @@ class KeysightN778C(abs_instr.AbsInstrument):
         """
         if not(0 <= val <= 9):
             raise ValueError("Gain should be comprised between 0 and 9.")
-        else:
-            return self.com.write(f":POL:GAIN {val}")
+
+        return self.com.write(f":POL:GAIN {val}")
 
     def ask_gain(self):
         """
@@ -405,8 +405,8 @@ class KeysightN778C(abs_instr.AbsInstrument):
             raise ValueError(
                 "Number of samples should be comprised between 1 and 1048576."
             )
-        else:
-            self.com.write(f":POL:SWE:SAMP {val}")
+
+        self.com.write(f":POL:SWE:SAMP {val}")
 
     def ask_number_sweeps(self):
         """
@@ -544,8 +544,8 @@ class KeysightN778C(abs_instr.AbsInstrument):
             raise ValueError(
                 "Number of pre samples should be lower than 1048576."
             )
-        else:
-            self.com.write(f":POL:SWE:TRIG:PRE:SAMP {val}")
+
+        self.com.write(f":POL:SWE:TRIG:PRE:SAMP {val}")
 
     def ask_pre_trigger_samples(self):
         """
@@ -568,8 +568,8 @@ class KeysightN778C(abs_instr.AbsInstrument):
             raise ValueError(
                 "Number of post samples should be lower than 1048576."
             )
-        else:
-            self.com.write(f":POL:SWE:TRIG:POST:SAMP {val}")
+
+        self.com.write(f":POL:SWE:TRIG:POST:SAMP {val}")
 
     def ask_post_trigger_samples(self):
         """
