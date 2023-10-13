@@ -14,9 +14,26 @@ class KeysightN7745C(abs_instr.AbsInstrument):
 
     def __init__(self, addrs: str):
         super().__init__(com=visa_coms.VisaCOM(addrs=addrs))
+        model = self.model()
 
     def idn_ask(self):
         return self.com.query("*IDN?").strip()
+
+    def idn_ask_dict(self):
+        vendor, model, serial, version = self.idn_ask().split(",")
+        """
+        Example
+        IDN Keysight Technologies,N7786C,MY59700220,V2.022
+        """
+        return {
+            "vendor": vendor.strip(),
+            "model": model.strip(),
+            "serial": serial.strip(),
+            "version": version.strip(),
+        }
+        
+    def model(self):
+        return self.idn_ask_dict()["model"]
 
     def system_error_ask(self):
         return self.com.query(":SYSTEM:ERROR?").strip()
