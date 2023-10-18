@@ -94,7 +94,7 @@ class KeysightN778C(abs_instr.AbsInstrument):
         else:
             return S0, S1, S2, S3
 
-    def fetch_stokes_params(self):
+    def fetch_stokes_params(self, normalized: bool = True):
         """
         Returns the measured S0, S1, S2 and S3 stokes parameter
         from the last measurement.
