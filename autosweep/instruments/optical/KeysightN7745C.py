@@ -334,7 +334,7 @@ class KeysightN7745C(abs_instr.AbsInstrument):
         """
         return int(self.com.query(f":SENSE{n}:POWER:GAIN:AUTO?"))
 
-    def sense_power_wavelength_nm(self, val):
+    def sense_power_wavelength_nm(self, n, val):
         self.com.write(f":SENSE{n}:POWER:WAVELENGTH {val}NM")
 
     def sense_power_wavelength_ask(self, n):
