@@ -257,6 +257,43 @@ class KeysightN7745C(abs_instr.AbsInstrument):
         )
         self.com.write(f":TRIGGER{n}:INPUT {trigger_response}")
 
+    def set_trigger_configuration(self, val: str):
+        """
+        Sets the hardware trigger configuration with regard to Output and Input Trigger Connectors.
+
+        Args:
+            0 or DISabled:      Trigger connectors are disabled.
+            1 or DEFault:       The Input Trigger Connector is activated,
+                                the incoming trigger response for each channel.
+            2 or PASSthrough:   The same as DEFault but a trigger at the Input Trigger Connector
+                                generates a trigger at the Output Trigger Connector automatically.
+            3 or LOOPback:      The same as DEFault but a trigger at the Output Trigger Connector
+                                generates a trigger at the Input Trigger Connector automatically.
+        """
+        val = val.upper()
+        assert val in (
+            "0", "DIS", "DISABLED",
+            "1", "DEF", "DEFAULT",
+            "2", "PASS", "PASSTHROUGH",
+            "3", "LOOP", "LOOPBACK",
+        )
+        self.com.write(f":TRIG:CONF {val}")
+
+    def ask_trigger_configuration(self):
+        """
+        Returns the hardware trigger configuration.
+
+        Returns:
+            0 or DISabled:      Trigger connectors are disabled.
+            1 or DEFault:       The Input Trigger Connector is activated,
+                                the incoming trigger response for each channel.
+            2 or PASSthrough:   The same as DEFault but a trigger at the Input Trigger Connector
+                                generates a trigger at the Output Trigger Connector automatically.
+            3 or LOOPback:      The same as DEFault but a trigger at the Output Trigger Connector
+                                generates a trigger at the Input Trigger Connector automatically.
+        """
+        return self.com.query(":TRIG:CONF?")
+
     def sense_power_range_auto(self, n, val):
         val = str(val).upper()
         assert val in ("0", "OFF", "1", "ON")

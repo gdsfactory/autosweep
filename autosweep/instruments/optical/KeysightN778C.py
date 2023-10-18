@@ -667,6 +667,51 @@ class KeysightN778C(abs_instr.AbsInstrument):
         """
         return self.com.query(":POL:TRIG:OUTP?")
 
+    def set_trigger_configuration(self, val: str):
+        """
+        Sets the hardware trigger configuration with regard to Output and Input Trigger Connectors.
+
+        Args:
+            0 or DISabled:              Trigger connectors are disabled.
+            1 or DEFault:               The Input Trigger Connector is activated,
+                                        the incoming trigger response for each channel.
+            2 or PASSthrough:           A trigger at the Input Trigger Connector generates a trigger at the Output Trigger
+                                        Connector automatically. No triggers from the instrument at the output.
+            3 or LOOPback:              The same as PASSthrough. This is included for compatibility reasons.
+            4 or SCRambler2polarimeter: The internal polarization scrambler forward the trigger-out signal
+                                        to the built-in polarimeter. This signal can be delayed by configure
+                                        the :PCONtroller:SEQuence:HOLDoff command).
+            5 or POLarimeter2scrambler: The internal polarimeter forward the trigger-out signal to the built-in scrambler.
+        """
+        val = val.upper()
+        assert val in (
+            "0", "DIS", "DISABLED",
+            "1", "DEF", "DEFAULT",
+            "2", "PASS", "PASSTHROUGH",
+            "3", "LOOP", "LOOPBACK",
+            "4", "SCR", "SCRAMBLER2POLARIMETER",
+            "5", "POL", "POLARIMETER2SCRAMBLER",
+        )
+        self.com.write(f":TRIG:CONF {val}")
+
+    def ask_trigger_configuration(self):
+        """
+        Returns the hardware trigger configuration.
+
+        Returns:
+            0 or DISabled:              Trigger connectors are disabled.
+            1 or DEFault:               The Input Trigger Connector is activated,
+                                        the incoming trigger response for each channel.
+            2 or PASSthrough:           A trigger at the Input Trigger Connector generates a trigger at the Output Trigger
+                                        Connector automatically. No triggers from the instrument at the output.
+            3 or LOOPback:              The same as PASSthrough. This is included for compatibility reasons.
+            4 or SCRambler2polarimeter: The internal polarization scrambler forward the trigger-out signal
+                                        to the built-in polarimeter. This signal can be delayed by configure
+                                        the :PCONtroller:SEQuence:HOLDoff command).
+            5 or POLarimeter2scrambler: The internal polarimeter forward the trigger-out signal to the built-in scrambler.
+        """
+        return self.com.query(":TRIG:CONF?")
+
     def set_trigger_delay_us(self, val: float):
         """
         Set time delay between input trigger and trigger event
