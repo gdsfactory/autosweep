@@ -92,6 +92,32 @@ class KeysightN7745C(abs_instr.AbsInstrument):
         return self.com.com.query_binary_values(
             ":FETCH:POWER:ALL?", datatype="f", is_big_endian=False
         )
+    
+    def read_power(self, n):
+        """
+        Reads the current power meter value. It provides its own software triggering and does not need a triggering command.
+        If the software trigger system operates continuously, this command is identical to :FETCh[n]:POWer?.
+        If the software trigger system does not operate continuously, this command is identical to generating a software trigger and
+        then reading the power meter value.
+        The power meter must be running for this command to be effective.
+
+        :return The current power meter reading as a float value in dBm, W or dB.
+                If the reference state is absolute, units are dBm or W.
+                If the reference state is relative, units are dB.
+        """
+        self.assert_n(n)
+        return float(self.com.query(f":READ{n}:POW?"))
+
+    def read_power_all(self):
+        """
+        Reads all available power channels. It provides its own software triggering and does not need a triggering command.
+
+        :return The values are ordered by channel.
+                Data values are always in Watt.
+        """
+        return self.com.com.query_binary_values(
+            ":READ:POWER:ALL?", datatype="f", is_big_endian=False
+        )
 
     def initiate_channel_immediate(self, n, m):
         """
