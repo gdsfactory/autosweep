@@ -175,7 +175,7 @@ class DiConGP600X1(abs_instr.AbsInstrument):
         """
         Sets the 3D matrix switch’s active wavelength
         """
-        self.com.write(f"X1 W {val}")
+        self.com.write(f"X1 W {val}\n")
 
     def wavelength_ask(self):
         """
