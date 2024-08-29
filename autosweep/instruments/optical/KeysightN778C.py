@@ -221,11 +221,11 @@ class KeysightN778C(abs_instr.AbsInstrument):
         Sets the gain level.
 
         Args:
-            0...5 = High Bandwith about 250kHz
-            6,7 = Medium Bandwith about 100kHz
-            8,9 = Slow Bandwith about 10kHz
+            0...5 = High Bandwidth about 250kHz
+            6,7 = Medium Bandwidth about 100kHz
+            8,9 = Slow Bandwidth about 10kHz
             Note - Use only gain between 0 and 7 for Stabilizer Mode
-            because 8 and 9 have a small Bandwith.
+            because 8 and 9 have a small Bandwidth.
             For best results check the Leveling of the Polarimeter. 
             Look at the POL:SWE:LPR? command.
             Maximum Speed is at Gain 0 to 5
@@ -280,12 +280,12 @@ class KeysightN778C(abs_instr.AbsInstrument):
         """
         self.com.write(":POL:ZERO")
 
-    def ask_zero_succesful(self):
+    def ask_zero_successful(self):
         """
             Returns zero results.
 
         Returns:
-            True if last zeroing was succesful else False if failed
+            True if last zeroing was successful else False if failed
         """
         zero_success = bool(int(self.com.query(":POL:ZERO?")))
         return zero_success
@@ -596,12 +596,12 @@ class KeysightN778C(abs_instr.AbsInstrument):
             PRETRIGGER_TTLLOW: Specified numbers of samples are logged
                                before falling edge on BNC input
             SMEasure: One sample for every trigger will be logged
-            CMEasure: One trigger excutes one loop
+            CMEasure: One trigger executes one loop
                       with specified number of samples
             MMEasure: One trigger executes specified number of loops
                       with specified number of samples
-            THReshold: Define minimum and maximum treshold power [Watt] limits for triggering.
-                       You have to pass two paramters additionally.
+            THReshold: Define minimum and maximum threshold power [Watt] limits for triggering.
+                       You have to pass two parameters additionally.
             If you don't want minimum or maximum limit,
             send NAN instead of number.
         """
@@ -631,7 +631,7 @@ class KeysightN778C(abs_instr.AbsInstrument):
     
     def ask_trigger_input(self):
         """
-        Returns input triger configuration.
+        Returns input trigger configuration.
 
         Returns:
             Input trigger configuration

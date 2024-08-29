@@ -184,7 +184,7 @@ class KeysightN777C(abs_instr.AbsInstrument):
         
         :return:
             wl:   wavelength for which maximum power is given [m]
-            pmax: maxmimum of power [W] available at the wavelength
+            pmax: maximum of power [W] available at the wavelength
 
 
         """
