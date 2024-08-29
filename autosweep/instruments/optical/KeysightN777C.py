@@ -189,10 +189,11 @@ class KeysightN777C(abs_instr.AbsInstrument):
 
         """
         self.com.com.write(":sour0:read:data? pmax")
-        data_raw = laser.com.com.read_raw()
+        data_raw = self.com.com.read_raw()
+        data = data_raw
 
-        SIZE_WL_BYTES = 8
-        SIZE_POW_BYTES = 4
+        SIZE_WL_VALUE = 8
+        SIZE_POW_VALUE = 4
 
         """
         For the data extraction:
@@ -204,6 +205,7 @@ class KeysightN777C(abs_instr.AbsInstrument):
         H = int(chr(data[1]))
         Len = int(data[2:2 + H])
         Block = data[2 + H: -1]
+        blocks = Block
         assert Len == len(Block)
 
         wl = []
@@ -301,7 +303,13 @@ class KeysightN777C(abs_instr.AbsInstrument):
         self.com.write(f":sour0:wav:swe {val}")
 
     def source_wavelength_sweep_state_ask(self):
-        ret = int(self.com.query(":sour0:wav:swe?"))
+        self.com.write("*WAI")
+        sret = self.com.query(":sour0:wav:swe?")
+        while len(sret) < 1:
+             print("Using SRET")
+             sret = self.com.query(":sour0:wav:swe?")
+             print(f"Value of SRET: {sret}")
+        ret = int(sret)
         assert ret in (0, 1, 2)
         return ret
 
@@ -315,6 +323,9 @@ class KeysightN777C(abs_instr.AbsInstrument):
 
     def source_wavelength_sweep_state_ask_is_idle(self):
         return self.source_wavelength_sweep_state_ask_str() != "RUNNING"
+
+    def source_wavelength_sweep_state_ask_is_running(self):
+        return self.source_wavelength_sweep_state_ask_str() == "RUNNING"
 
     def sweep_wait_done(self):
         while True:
