@@ -274,12 +274,18 @@ class KeysightN7745C(abs_instr.AbsInstrument):
         self.assert_n(n)
         trigger_response = trigger_response.upper()
         assert trigger_response in (
+            "IGN",
+            "IGNORE",
             "SME",
             "SMEASURE",
-            "CMEASURE",
             "CME",
+            "CMEASURE",
+            "MME",
             "MMEASURE",
-            "MM",
+            "PRE",
+            "PRETRIGGER",
+            "THR",
+            "THRESHOLD"
         )
         self.com.write(f":TRIGGER{n}:INPUT {trigger_response}")
 
@@ -397,8 +403,11 @@ class KeysightN7745C(abs_instr.AbsInstrument):
         """
         return int(self.com.query(f":SENSE{n}:POWER:GAIN:AUTO?"))
 
-    def sense_power_wavelength_nm(self, n, val):
-        self.com.write(f":SENSE{n}:POWER:WAVELENGTH {val}NM")
+    def sense_power_wavelength_nm(self, val, n=None):
+        if n:
+            self.com.write(f":SENSE{n}:POWER:WAVELENGTH {val}NM")
+        else:
+            self.com.write(f":SENSE:POWER:WAVELENGTH:ALL {val}NM")
 
     def sense_power_wavelength_ask(self, n):
         self.assert_n(n)
