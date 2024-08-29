@@ -18,7 +18,9 @@ class VisaCOM(base_com.BaseCOM):
                 addrs, write_termination="\r", read_termination="\r"
             )
         else:
-            self.com = rm.open_resource(addrs)
+            self.com = rm.open_resource(
+                addrs, write_termination="\n", read_termination="\n"
+            )
         self.addrs = addrs
 
     def write(self, cmd: str) -> None:
