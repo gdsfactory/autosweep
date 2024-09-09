@@ -14,7 +14,7 @@ class KeysightN7745C(abs_instr.AbsInstrument):
 
     def __init__(self, addrs: str):
         super().__init__(com=visa_coms.VisaCOM(addrs=addrs))
-        model = self.model()
+        self.model()
 
     def idn_ask(self):
         return self.com.query("*IDN?").strip()
@@ -31,7 +31,7 @@ class KeysightN7745C(abs_instr.AbsInstrument):
             "serial": serial.strip(),
             "version": version.strip(),
         }
-        
+
     def model(self):
         return self.idn_ask_dict()["model"]
 
@@ -92,7 +92,7 @@ class KeysightN7745C(abs_instr.AbsInstrument):
         return self.com.com.query_binary_values(
             ":FETCH:POWER:ALL?", datatype="f", is_big_endian=False
         )
-    
+
     def read_power(self, n):
         """
         Reads the current power meter value. It provides its own software triggering and does not need a triggering command.
@@ -285,7 +285,7 @@ class KeysightN7745C(abs_instr.AbsInstrument):
             "PRE",
             "PRETRIGGER",
             "THR",
-            "THRESHOLD"
+            "THRESHOLD",
         )
         self.com.write(f":TRIGGER{n}:INPUT {trigger_response}")
 
@@ -304,10 +304,18 @@ class KeysightN7745C(abs_instr.AbsInstrument):
         """
         val = val.upper()
         assert val in (
-            "0", "DIS", "DISABLED",
-            "1", "DEF", "DEFAULT",
-            "2", "PASS", "PASSTHROUGH",
-            "3", "LOOP", "LOOPBACK",
+            "0",
+            "DIS",
+            "DISABLED",
+            "1",
+            "DEF",
+            "DEFAULT",
+            "2",
+            "PASS",
+            "PASSTHROUGH",
+            "3",
+            "LOOP",
+            "LOOPBACK",
         )
         self.com.write(f":TRIG:CONF {val}")
 

@@ -51,7 +51,7 @@ class ResultsHold:
             raise TypeError("'spec' argument must be of type 'str'")
         if not isinstance(unit, str):
             raise TypeError("'unit' argument must be of type 'str'")
-        if not isinstance(value, (int, float, bool)):
+        if not isinstance(value, int | float | bool):
             raise TypeError(
                 "'value' argument must be of type 'int', 'float', or 'bool'"
             )
