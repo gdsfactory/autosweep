@@ -14,9 +14,26 @@ class KeysightN7745C(abs_instr.AbsInstrument):
 
     def __init__(self, addrs: str):
         super().__init__(com=visa_coms.VisaCOM(addrs=addrs))
+        model = self.model()
 
     def idn_ask(self):
         return self.com.query("*IDN?").strip()
+
+    def idn_ask_dict(self):
+        vendor, model, serial, version = self.idn_ask().split(",")
+        """
+        Example
+        IDN Keysight Technologies,N7786C,MY59700220,V2.022
+        """
+        return {
+            "vendor": vendor.strip(),
+            "model": model.strip(),
+            "serial": serial.strip(),
+            "version": version.strip(),
+        }
+        
+    def model(self):
+        return self.idn_ask_dict()["model"]
 
     def system_error_ask(self):
         return self.com.query(":SYSTEM:ERROR?").strip()
@@ -74,6 +91,32 @@ class KeysightN7745C(abs_instr.AbsInstrument):
         """
         return self.com.com.query_binary_values(
             ":FETCH:POWER:ALL?", datatype="f", is_big_endian=False
+        )
+    
+    def read_power(self, n):
+        """
+        Reads the current power meter value. It provides its own software triggering and does not need a triggering command.
+        If the software trigger system operates continuously, this command is identical to :FETCh[n]:POWer?.
+        If the software trigger system does not operate continuously, this command is identical to generating a software trigger and
+        then reading the power meter value.
+        The power meter must be running for this command to be effective.
+
+        :return The current power meter reading as a float value in dBm, W or dB.
+                If the reference state is absolute, units are dBm or W.
+                If the reference state is relative, units are dB.
+        """
+        self.assert_n(n)
+        return float(self.com.query(f":READ{n}:POW?"))
+
+    def read_power_all(self):
+        """
+        Reads all available power channels. It provides its own software triggering and does not need a triggering command.
+
+        :return The values are ordered by channel.
+                Data values are always in Watt.
+        """
+        return self.com.com.query_binary_values(
+            ":READ:POWER:ALL?", datatype="f", is_big_endian=False
         )
 
     def initiate_channel_immediate(self, n, m):
@@ -231,14 +274,57 @@ class KeysightN7745C(abs_instr.AbsInstrument):
         self.assert_n(n)
         trigger_response = trigger_response.upper()
         assert trigger_response in (
+            "IGN",
+            "IGNORE",
             "SME",
             "SMEASURE",
-            "CMEASURE",
             "CME",
+            "CMEASURE",
+            "MME",
             "MMEASURE",
-            "MM",
+            "PRE",
+            "PRETRIGGER",
+            "THR",
+            "THRESHOLD"
         )
         self.com.write(f":TRIGGER{n}:INPUT {trigger_response}")
+
+    def set_trigger_configuration(self, val: str):
+        """
+        Sets the hardware trigger configuration with regard to Output and Input Trigger Connectors.
+
+        Args:
+            0 or DISabled:      Trigger connectors are disabled.
+            1 or DEFault:       The Input Trigger Connector is activated,
+                                the incoming trigger response for each channel.
+            2 or PASSthrough:   The same as DEFault but a trigger at the Input Trigger Connector
+                                generates a trigger at the Output Trigger Connector automatically.
+            3 or LOOPback:      The same as DEFault but a trigger at the Output Trigger Connector
+                                generates a trigger at the Input Trigger Connector automatically.
+        """
+        val = val.upper()
+        assert val in (
+            "0", "DIS", "DISABLED",
+            "1", "DEF", "DEFAULT",
+            "2", "PASS", "PASSTHROUGH",
+            "3", "LOOP", "LOOPBACK",
+        )
+        self.com.write(f":TRIG:CONF {val}")
+
+    def ask_trigger_configuration(self):
+        """
+        Returns the hardware trigger configuration.
+
+        Returns:
+            0 or DISabled:      Trigger connectors are disabled.
+            1 or DEFault:       The Input Trigger Connector is activated,
+                                the incoming trigger response for each channel.
+            2 or PASSthrough:   The same as DEFault but a trigger at the Input Trigger Connector
+                                generates a trigger at the Output Trigger Connector automatically.
+            3 or LOOPback:      The same as DEFault but a trigger at the Output Trigger Connector
+                                generates a trigger at the Input Trigger Connector automatically.
+        """
+        return self.com.query(":TRIG:CONF?")
 
     def sense_power_range_auto(self, n, val):
         val = str(val).upper()
@@ -317,8 +403,11 @@ class KeysightN7745C(abs_instr.AbsInstrument):
         """
         return int(self.com.query(f":SENSE{n}:POWER:GAIN:AUTO?"))
 
-    def sense_power_wavelength_nm(self, val):
-        self.com.write(f":SENSE{n}:POWER:WAVELENGTH {val}NM")
+    def sense_power_wavelength_nm(self, val, n=None):
+        if n:
+            self.com.write(f":SENSE{n}:POWER:WAVELENGTH {val}NM")
+        else:
+            self.com.write(f":SENSE:POWER:WAVELENGTH:ALL {val}NM")
 
     def sense_power_wavelength_ask(self, n):
         self.assert_n(n)
