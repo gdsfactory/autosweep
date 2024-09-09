@@ -9,8 +9,9 @@ Wavelength:
 
 Wavelength resolution 0.1 pm (17.5 MHz at 1310 nm, 14.3 MHz at 1450 nm, 12.5 MHz at 1550 nm)
 """
-import time
+
 import struct
+import time
 
 from autosweep.instruments import abs_instr
 from autosweep.instruments.coms import visa_coms
@@ -181,7 +182,7 @@ class KeysightN777C(abs_instr.AbsInstrument):
     def source_power_max_spectrum(self):
         """
         Returns the maximum power the laser can produce at each wavelength.
-        
+
         :return:
             wl:   wavelength for which maximum power is given [m]
             pmax: maximum of power [W] available at the wavelength
@@ -203,8 +204,8 @@ class KeysightN777C(abs_instr.AbsInstrument):
         From Keysight N777-C Series Tunable Laser Family programming guide p.14
         """
         H = int(chr(data[1]))
-        Len = int(data[2:2 + H])
-        Block = data[2 + H: -1]
+        Len = int(data[2 : 2 + H])
+        Block = data[2 + H : -1]
         blocks = Block
         assert Len == len(Block)
 
@@ -212,13 +213,9 @@ class KeysightN777C(abs_instr.AbsInstrument):
         pmax = []
         for id in range(blocks // (SIZE_WL_VALUE + SIZE_POW_VALUE)):
             id_wl = id * (SIZE_WL_VALUE + SIZE_POW_VALUE)
-            wl.append(
-                struct.unpack('<d', Block[id_wl:id_wl + SIZE_WL_VALUE])
-            )
+            wl.append(struct.unpack("<d", Block[id_wl : id_wl + SIZE_WL_VALUE]))
             id_pow = id_wl + SIZE_WL_VALUE
-            pmax.append(
-                struct.unpack('f', Block[id_pow:id_pow + SIZE_POW_VALUE])
-            )
+            pmax.append(struct.unpack("f", Block[id_pow : id_pow + SIZE_POW_VALUE]))
         return wl, pmax
 
     def source_wavelength_correction_ara(self):
@@ -306,9 +303,9 @@ class KeysightN777C(abs_instr.AbsInstrument):
         self.com.write("*WAI")
         sret = self.com.query(":sour0:wav:swe?")
         while len(sret) < 1:
-             print("Using SRET")
-             sret = self.com.query(":sour0:wav:swe?")
-             print(f"Value of SRET: {sret}")
+            print("Using SRET")
+            sret = self.com.query(":sour0:wav:swe?")
+            print(f"Value of SRET: {sret}")
         ret = int(sret)
         assert ret in (0, 1, 2)
         return ret
@@ -534,9 +531,9 @@ class KeysightN777C(abs_instr.AbsInstrument):
         print("  Lock", self.lock_ask())
         print("  Is on", self.source_power_state_ask())
         print("  Wavelength")
-        print("    Current: %0.3f nm" % self.source_wavelength_ask_nm())
-        print("    Min: %0.3f nm" % self.source_wavelength_ask_nm("MIN"))
-        print("    Max: %0.3f nm" % self.source_wavelength_ask_nm("MAX"))
+        print(f"    Current: {self.source_wavelength_ask_nm():0.3f} nm")
+        print("    Min: {:0.3f} nm".format(self.source_wavelength_ask_nm("MIN")))
+        print("    Max: {:0.3f} nm".format(self.source_wavelength_ask_nm("MAX")))
         print("  Power", self.source_power_ask())
         print("  Power units", self.source_power_unit_ask_str())
         print("  Power", self.source_power_ask_mw(), "mW")
@@ -589,9 +586,9 @@ if __name__ == "__main__":
         # wavelength test
         # xxx: how can I query the allowed wavelewngth range?
         if 0:
-            print("wavelength %0.3f nm" % laser.source_wavelength_ask())
+            print(f"wavelength {laser.source_wavelength_ask():0.3f} nm")
             laser.source_wavelength_set()
-            print("wavelength %0.3f nm" % laser.source_wavelength_ask())
+            print(f"wavelength {laser.source_wavelength_ask():0.3f} nm")
 
         # test fire simple
         if 0:

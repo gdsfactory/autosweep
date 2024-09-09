@@ -14,15 +14,12 @@ repos:
         # args: ["--pytest-test-first"]
       - id: trailing-whitespace
 
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: "6a0ba1854991b693612486cc84a2254de82d071d"
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: "v0.6.3"
     hooks:
       - id: ruff
-
-  - repo: https://github.com/psf/black
-    rev: "d9b8a6407e2f46304a8d36b18e4a73d8e0613519"
-    hooks:
-      - id: black
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: 953faa6870f6663ac0121ab4a800f1ce76bca31f

@@ -21,7 +21,8 @@ class KeysightN778C(abs_instr.AbsInstrument):
             if model in ("N7781C", "N7785C"):
                 warnings.warn(
                     "Some functions may not be available."
-                    + "Please check the datasheet."
+                    + "Please check the datasheet.",
+                    stacklevel=2,
                 )
             else:
                 raise ValueError(f"Unexpected model {model}")
@@ -72,23 +73,23 @@ class KeysightN778C(abs_instr.AbsInstrument):
             errors.append(error)
         if errors:
             assert 0, f"Encountered errors: {errors}"
-        
+
     def model(self):
         return self.idn_ask_dict()["model"]
-        
+
     def measure_stokes_params(self, normalized: bool = True):
         """
         Returns the measured S0, S1, S2 and S3 stokes parameter.
 
         Args:
             If normalized parameters should be returned
-        
+
         Returns:
             S0, S1, S2, S3 if not normalized
             s1, s2, s3 if normalized
         """
         S_list = self.com.query(":POL:SOP?").strip().split(",")
-        S0, S1, S2, S3 = [float(Selem) for Selem in S_list]
+        S0, S1, S2, S3 = (float(Selem) for Selem in S_list)
         if normalized:
             return S1 / S0, S2 / S0, S3 / S0
         else:
@@ -101,13 +102,13 @@ class KeysightN778C(abs_instr.AbsInstrument):
 
         Args:
             If normalized parameters should be returned
-        
+
         Returns:
             S0, S1, S2, S3 if not normalized
             s1, s2, s3 if normalized
         """
         S_list = self.com.query(":POL:SOP:FETCH?").strip().split(",")
-        S0, S1, S2, S3 = [float(Selem) for Selem in S_list]
+        S0, S1, S2, S3 = (float(Selem) for Selem in S_list)
         if normalized:
             return S1 / S0, S2 / S0, S3 / S0
         else:
@@ -116,7 +117,7 @@ class KeysightN778C(abs_instr.AbsInstrument):
     def measure_optical_power(self):
         """
         Returns the measured optical power in configured power unit.
-    
+
         Returns:
             Measurement optical power
         """
@@ -125,7 +126,7 @@ class KeysightN778C(abs_instr.AbsInstrument):
     def fetch_optical_power(self):
         """
         Returns the power from last measurement.
-    
+
         Returns:
             Measurement optical power from last measurement
         """
@@ -165,7 +166,7 @@ class KeysightN778C(abs_instr.AbsInstrument):
         min_wl = float(self.com.query(":POL:WAV? MIN")) * 1e9
         max_wl = float(self.com.query(":POL:WAV? MAX")) * 1e9
 
-        if not(min_wl < wl < max_wl):
+        if not (min_wl < wl < max_wl):
             raise ValueError(
                 "Wavelength need to be comprised between"
                 + f"{min_wl}nm and {max_wl}nm."
@@ -181,7 +182,7 @@ class KeysightN778C(abs_instr.AbsInstrument):
             Wavelength [nm]
         """
         min_avail_wl = float(self.com.query(":POL:WAV? MIN")) * 1e9
-        if not(min_avail_wl <= wl):
+        if not (min_avail_wl <= wl):
             raise ValueError(f"Wavelength need to be above{min_avail_wl}nm.")
 
         self.com.write(f":POL:WAV {wl}NM MIN")
@@ -194,7 +195,7 @@ class KeysightN778C(abs_instr.AbsInstrument):
             Wavelength [nm]
         """
         max_avail_wl = float(self.com.query(":POL:WAV? MAX")) * 1e9
-        if not(wl <= max_avail_wl):
+        if not (wl <= max_avail_wl):
             raise ValueError(f"Wavelength need to be below{max_avail_wl}nm.")
 
         self.com.write(f":POL:WAV {wl}NM MAX")
@@ -205,7 +206,7 @@ class KeysightN778C(abs_instr.AbsInstrument):
 
         Args:
             Wavelength of interest (min, max or default)
-        
+
         Returns:
             Wavelength at the asked position [nm]
         """
@@ -214,7 +215,7 @@ class KeysightN778C(abs_instr.AbsInstrument):
             assert val in ("MIN", "MAX", "DEF")
             return float(self.com.query(f":POL:WAV? {val}"))
         else:
-            return float(self.com.query(f":POL:WAV?"))
+            return float(self.com.query(":POL:WAV?"))
 
     def set_gain(self, val: int = 5):
         """
@@ -226,13 +227,13 @@ class KeysightN778C(abs_instr.AbsInstrument):
             8,9 = Slow Bandwidth about 10kHz
             Note - Use only gain between 0 and 7 for Stabilizer Mode
             because 8 and 9 have a small Bandwidth.
-            For best results check the Leveling of the Polarimeter. 
+            For best results check the Leveling of the Polarimeter.
             Look at the POL:SWE:LPR? command.
             Maximum Speed is at Gain 0 to 5
             Even Gains have Factors of 10 and odd Gains Factors of 8.
             Choose what fits better
         """
-        if not(0 <= val <= 9):
+        if not (0 <= val <= 9):
             raise ValueError("Gain should be comprised between 0 and 9.")
 
         return self.com.write(f":POL:GAIN {val}")
@@ -240,7 +241,7 @@ class KeysightN778C(abs_instr.AbsInstrument):
     def ask_gain(self):
         """
             Returns the gain level.
-        
+
         Returns:
             Value of the gain (from 0 to 9)
         """
@@ -268,15 +269,15 @@ class KeysightN778C(abs_instr.AbsInstrument):
 
     def disable_logging(self):
         """
-            Stops logging.
+        Stops logging.
         """
         self.com.write(":POL:SWE:STOP")
-    
+
     def zero_photodiodes(self):
         """
-            Zeros photodiodes.
-            (That means dark current is measured
-            and will be subtracted from future measurements.)
+        Zeros photodiodes.
+        (That means dark current is measured
+        and will be subtracted from future measurements.)
         """
         self.com.write(":POL:ZERO")
 
@@ -319,7 +320,7 @@ class KeysightN778C(abs_instr.AbsInstrument):
             SOP: Starts logging and sets loop to 1
             SOPCONTINUOUS: Starts logging and sets loop to 0 (endless logging)
         """
-        if not(mode):
+        if not (mode):
             self.com.write(":POL:SWE:STAR")
         else:
             mode = mode.upper()
@@ -354,21 +355,27 @@ class KeysightN778C(abs_instr.AbsInstrument):
             return np.array(
                 self.com.com.query_binary_values(
                     ":POL:SWE:GET?", datatype="f", is_big_endian=False
-                ).reshape((-1, 4)).T
+                )
+                .reshape((-1, 4))
+                .T
             )
         val = val.upper()
-        assert val in ("SOP", "NORM", "NORMALIZED") 
+        assert val in ("SOP", "NORM", "NORMALIZED")
         if val == "SOP":
             return np.array(
                 self.com.com.query_binary_values(
                     ":POL:SWE:GET? SOP", datatype="f", is_big_endian=False
-                ).reshape((-1, 4)).T
+                )
+                .reshape((-1, 4))
+                .T
             )
         else:
             return np.array(
                 self.com.com.query_binary_values(
                     ":POL:SWE:GET? NORM", datatype="f", is_big_endian=False
-                ).reshape((-1, 3)).T
+                )
+                .reshape((-1, 3))
+                .T
             )
 
     def get_measured_power(self):
@@ -384,11 +391,10 @@ class KeysightN778C(abs_instr.AbsInstrument):
             )
         )
 
-
     def get_number_logged_loops(self):
         """
             Returns the number of already finished logging loops.
-        
+
         Returns:
             Number of finished and logged loops
         """
@@ -399,9 +405,9 @@ class KeysightN778C(abs_instr.AbsInstrument):
             Sets the number of samples/logging count.
 
         Args:
-            Number of samples (1-1048576)        
+            Number of samples (1-1048576)
         """
-        if not(1 <= val <= 1048576):
+        if not (1 <= val <= 1048576):
             raise ValueError(
                 "Number of samples should be comprised between 1 and 1048576."
             )
@@ -426,7 +432,7 @@ class KeysightN778C(abs_instr.AbsInstrument):
              Number of already logged samples.
         """
         return int(self.com.query(":POL:SWE:SAMP:CURR?"))
-    
+
     def set_sweep_rate_nm_per_s(self, val: float):
         """
         Sets the sweep rate in nm/s
@@ -441,10 +447,9 @@ class KeysightN778C(abs_instr.AbsInstrument):
             Sweep rate [nm/s]
         """
         trig_input = self.com.query(":POL:TRIG:INP?")
-        if not(trig_input == "NONE"):
+        if not (trig_input == "NONE"):
             raise ValueError(
-                "The sweet rate [nm/s] can only be set "
-                + "with disabled trigger."
+                "The sweet rate [nm/s] can only be set " + "with disabled trigger."
             )
 
         self.com.write(f":POL:SWE:RAT {val}NM/S")
@@ -457,10 +462,8 @@ class KeysightN778C(abs_instr.AbsInstrument):
             Sweep rate [nm/s]
         """
         return float(self.com.query(":POL:SWE:RAT?"))
-    
-    def set_sampling_rates_nm_per_s(
-        self, srate: float, averaging_time: float = None
-        ):
+
+    def set_sampling_rates_nm_per_s(self, srate: float, averaging_time: float = None):
         """
         Sets the sampling rate.
 
@@ -470,14 +473,10 @@ class KeysightN778C(abs_instr.AbsInstrument):
         """
 
         if not averaging_time:
-            self.com.write(
-                f":POL:SWE:RAT {srate}Hz"
-            )
+            self.com.write(f":POL:SWE:RAT {srate}Hz")
         else:
-            self.com.write(
-                f":POL:SWE:RAT {srate}Hz,{averaging_time}s"
-            )
-    
+            self.com.write(f":POL:SWE:RAT {srate}Hz,{averaging_time}s")
+
     def ask_sampling_rates(self):
         """
         Gets the sampling rate and averaging time.
@@ -491,7 +490,7 @@ class KeysightN778C(abs_instr.AbsInstrument):
     def ask_quality_gain(self):
         """
         Returns how well the ADC range was used for the last peak power.
-        
+
         Returns:
             Value estimating the quality of the gain
             Value < 0.5 -> Measurement sweep should
@@ -503,13 +502,13 @@ class KeysightN778C(abs_instr.AbsInstrument):
         quality = float(self.com.query(":POL:SWE:LPR?"))
         if quality < 0.5:
             warnings.warn(
-                "GAIN IS TOO LOW."
-                + "Please increase gain and repeat the measurement."
+                "GAIN IS TOO LOW." + "Please increase gain and repeat the measurement.",
+                stacklevel=2,
             )
         elif quality > 1.0:
             warnings.warn(
-                "GAIN IS TOO LOW."
-                + "Please lower the gain, risk of overflow"
+                "GAIN IS TOO LOW." + "Please lower the gain, risk of overflow",
+                stacklevel=2,
             )
 
         return quality
@@ -526,13 +525,13 @@ class KeysightN778C(abs_instr.AbsInstrument):
     def ask_sweep_step_nm(self):
         """
         Get the sweep (wavelength) step done for every trigger while logging.
-        
+
         Returns:
             Wavelength step [nm]
         """
         return float(self.com.query(":POL:SWE:STEP?")) * 1e9
-    
-    def set_pre_trigger_samples(self, val:int):
+
+    def set_pre_trigger_samples(self, val: int):
         """
         Sets the number of pre samples.
         (Sample before the trigger event).
@@ -541,9 +540,7 @@ class KeysightN778C(abs_instr.AbsInstrument):
             Number of pre samples
         """
         if val > 1048576:
-            raise ValueError(
-                "Number of pre samples should be lower than 1048576."
-            )
+            raise ValueError("Number of pre samples should be lower than 1048576.")
 
         self.com.write(f":POL:SWE:TRIG:PRE:SAMP {val}")
 
@@ -555,19 +552,17 @@ class KeysightN778C(abs_instr.AbsInstrument):
             Number of pre samples set
         """
         return int(self.com.query(":POL:SWE:TRIG:PRE:SAMP?"))
-    
+
     def set_post_trigger_samples(self, val: int):
         """
-        Sets the number of post samples. 
+        Sets the number of post samples.
         (Sample after the trigger event).
 
         Args:
             Number of post samples
         """
         if val > 1048576:
-            raise ValueError(
-                "Number of post samples should be lower than 1048576."
-            )
+            raise ValueError("Number of post samples should be lower than 1048576.")
 
         self.com.write(f":POL:SWE:TRIG:POST:SAMP {val}")
 
@@ -579,10 +574,8 @@ class KeysightN778C(abs_instr.AbsInstrument):
             Number of post samples set
         """
         return int(self.com.query(":POL:SWE:TRIG:POST:SAMP?"))
-    
-    def set_trigger_input(
-        self, val: str, pmin: float = None, pmax: float = None
-        ):
+
+    def set_trigger_input(self, val: str, pmin: float = None, pmax: float = None):
         """
         Defines the trigger input.
 
@@ -620,15 +613,15 @@ class KeysightN778C(abs_instr.AbsInstrument):
             "MMEASURE",
             "MME",
             "THRESHOLD",
-            "THR"
+            "THR",
         )
 
         if val in ("THRESHOLD", "THR"):
-            if not(pmin or pmax):
+            if not (pmin or pmax):
                 raise ValueError("THReshold requires a minimum and a maximum power.")
             self.com.write(f":POL:TRIG:INP {val},{pmin},{pmax}")
         self.com.write(f":POL:TRIG:INP {val}")
-    
+
     def ask_trigger_input(self):
         """
         Returns input trigger configuration.
@@ -648,16 +641,9 @@ class KeysightN778C(abs_instr.AbsInstrument):
             MEASure: trigger when measuring starts at output BNC
         """
         val = val.upper()
-        assert val in (
-            "DIS",
-            "DISABLED",
-            "AVG",
-            "AVGOVER",
-            "MEAS",
-            "MEASURE"
-        )
+        assert val in ("DIS", "DISABLED", "AVG", "AVGOVER", "MEAS", "MEASURE")
         self.com.write(f":POL:TRIG:OUTP {val}")
-    
+
     def ask_trigger_output(self):
         """
         Returns trigger output configuration.
@@ -685,12 +671,24 @@ class KeysightN778C(abs_instr.AbsInstrument):
         """
         val = val.upper()
         assert val in (
-            "0", "DIS", "DISABLED",
-            "1", "DEF", "DEFAULT",
-            "2", "PASS", "PASSTHROUGH",
-            "3", "LOOP", "LOOPBACK",
-            "4", "SCR", "SCRAMBLER2POLARIMETER",
-            "5", "POL", "POLARIMETER2SCRAMBLER",
+            "0",
+            "DIS",
+            "DISABLED",
+            "1",
+            "DEF",
+            "DEFAULT",
+            "2",
+            "PASS",
+            "PASSTHROUGH",
+            "3",
+            "LOOP",
+            "LOOPBACK",
+            "4",
+            "SCR",
+            "SCRAMBLER2POLARIMETER",
+            "5",
+            "POL",
+            "POLARIMETER2SCRAMBLER",
         )
         self.com.write(f":TRIG:CONF {val}")
 
@@ -721,14 +719,13 @@ class KeysightN778C(abs_instr.AbsInstrument):
         """
         factor = int(val * 32)
 
-        if not(0 <= factor <= 997):
+        if not (0 <= factor <= 997):
             raise ValueError(
-                "Delay should be comprised between 0 and "
-                + f"{997/32}us."
+                "Delay should be comprised between 0 and " + f"{997/32}us."
             )
 
         self.com.write(f":POL:TRIG:OFFS {factor}")
-    
+
     def ask_trigger_delay_us(self):
         """
         Returns delay after which event is executed when trigger event occurs.
@@ -748,7 +745,7 @@ class KeysightN778C(abs_instr.AbsInstrument):
             Trigger offset
         """
         self.com.write(f":POL:TRIG:OFFS {val}")
-    
+
     def ask_trigger_offset(self):
         """
         Returns number of triggers,
@@ -764,7 +761,7 @@ class KeysightN778C(abs_instr.AbsInstrument):
     def set_stabilizer_mode(self, val: bool = True):
         """
         Sets the Stabilizer Operating Mode.
-        
+
         Args:
             If stabilization should be enable True
             or disabled False
@@ -780,10 +777,8 @@ class KeysightN778C(abs_instr.AbsInstrument):
             True if stabilization is enabled, False else
         """
         return bool(int(self.com.query(":STAB:STAB?")))
-    
-    def set_stabilizer_stokes_params_target(
-        self, s1: float, s2: float, s3: float
-        ):
+
+    def set_stabilizer_stokes_params_target(self, s1: float, s2: float, s3: float):
         """
         Sets the target SOP for the Stabilizer.
 
@@ -793,11 +788,11 @@ class KeysightN778C(abs_instr.AbsInstrument):
             - s3, normalized Stokes vector
         """
         self.com.write(f"STAB:SOP {s1},{s2},{s3}")
-    
+
     def ask_stabilizer_stokes_params_target(self):
         """
         Gets the target SOP.
-        
+
         Returns:
             - s1, normalized Stokes vector
             - s2, normalized Stokes vector
