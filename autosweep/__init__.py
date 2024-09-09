@@ -12,7 +12,7 @@ register_classes(instruments)
 register_classes(optical)
 register_classes(tests)
 
-__version__ = "0.0.3"
+__version__ = "0.1.0"
 
 __all__ = [
     "init_logger",
